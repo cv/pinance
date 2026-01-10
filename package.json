@@ -18,7 +18,7 @@
 	"keywords": ["pi", "pi-extension", "finance", "stocks", "crypto", "sec-filings"],
 	"license": "MIT",
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "^2.3.11",
 		"@sinclair/typebox": "^0.34.14",
 		"@types/node": "^22.19.5",
 		"husky": "^9.1.7",
