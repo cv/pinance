@@ -10,7 +10,6 @@ export async function callApi<T>(
 	params: Record<string, string | number | string[] | undefined>,
 	signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
-	// biome-ignore lint/nursery/noProcessEnv: API key must come from environment
 	const apiKey = process.env.FINANCIAL_DATASETS_API_KEY;
 	if (!apiKey) {
 		throw new Error("FINANCIAL_DATASETS_API_KEY environment variable is not set");
