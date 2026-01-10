@@ -23,7 +23,9 @@
 		"rules": {
 			"all": true,
 			"nursery": {
-				"all": true
+				"all": true,
+				"noProcessEnv": "off",
+				"noSecrets": "off"
 			},
 			"correctness": {
 				"noNodejsModules": "off"
