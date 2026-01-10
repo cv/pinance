@@ -1,5 +1,6 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import {
+	registerCryptoTools,
 	registerEstimatesTools,
 	registerFundamentalsTools,
 	registerInsiderTradesTools,
@@ -9,6 +10,7 @@ import {
 } from "./tools/index.js";
 
 export default function pinance(pi: ExtensionAPI): void {
+	registerCryptoTools(pi);
 	registerEstimatesTools(pi);
 	registerFundamentalsTools(pi);
 	registerInsiderTradesTools(pi);
