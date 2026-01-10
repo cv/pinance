@@ -1,3 +1,5 @@
+import { getConfig } from "./config.js";
+
 const BASE_URL = "https://api.financialdatasets.ai";
 
 export interface ApiResponse<T> {
@@ -10,10 +12,7 @@ export async function callApi<T>(
 	params: Record<string, string | number | string[] | undefined>,
 	signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
-	const apiKey = process.env.FINANCIAL_DATASETS_API_KEY;
-	if (!apiKey) {
-		throw new Error("FINANCIAL_DATASETS_API_KEY environment variable is not set");
-	}
+	const { financialDatasetsApiKey } = getConfig();
 
 	const url = new URL(`${BASE_URL}${endpoint}`);
 
@@ -31,7 +30,7 @@ export async function callApi<T>(
 
 	const response = await fetch(url.toString(), {
 		headers: {
-			"x-api-key": apiKey,
+			"x-api-key": financialDatasetsApiKey,
 		},
 		signal: signal ?? null,
 	});
