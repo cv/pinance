@@ -24,8 +24,8 @@
 			"all": true,
 			"nursery": {
 				"all": true,
-				"noProcessEnv": "off",
-				"noSecrets": "off"
+				"noSecrets": "off",
+				"noProcessEnv": "warn"
 			},
 			"correctness": {
 				"noNodejsModules": "off"
