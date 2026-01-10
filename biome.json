@@ -28,6 +28,9 @@
 			"correctness": {
 				"noNodejsModules": "off"
 			},
+			"performance": {
+				"noBarrelFile": "off"
+			},
 			"style": {
 				"noDefaultExport": "off",
 				"useNamingConvention": {
