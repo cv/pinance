@@ -1,17 +1,14 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
 		"useIgnoreFile": true
 	},
 	"files": {
-		"include": ["src/**/*.ts", "*.json"],
-		"ignore": ["node_modules", "dist", "coverage"]
+		"includes": ["**/src/**/*.ts", "**/*.json", "!**/node_modules", "!**/dist", "!**/coverage"]
 	},
-	"organizeImports": {
-		"enabled": true
-	},
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
@@ -21,12 +18,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"all": true,
-			"nursery": {
-				"all": true,
-				"noSecrets": "off",
-				"noProcessEnv": "warn"
-			},
+			"nursery": {},
 			"correctness": {
 				"noNodejsModules": "off"
 			},
@@ -58,7 +50,11 @@
 							}
 						]
 					}
-				}
+				},
+				"noProcessEnv": "warn"
+			},
+			"security": {
+				"noSecrets": "off"
 			}
 		}
 	},

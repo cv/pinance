@@ -13,14 +13,12 @@ describe("config", () => {
 		if (originalApiKey !== undefined) {
 			process.env.FINANCIAL_DATASETS_API_KEY = originalApiKey;
 		} else {
-			// biome-ignore lint/performance/noDelete: Required for env cleanup in tests
 			delete process.env.FINANCIAL_DATASETS_API_KEY;
 		}
 		resetConfig();
 	});
 
 	it("should throw error when API key is not set", () => {
-		// biome-ignore lint/performance/noDelete: Required for env cleanup in tests
 		delete process.env.FINANCIAL_DATASETS_API_KEY;
 
 		expect(() => getConfig()).toThrow("FINANCIAL_DATASETS_API_KEY environment variable is not set");

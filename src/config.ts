@@ -8,7 +8,7 @@ export interface Config {
 }
 
 function getEnvVar(name: string): string {
-	// biome-ignore lint/nursery/noProcessEnv: Centralized env access
+	// biome-ignore lint/style/noProcessEnv: Centralized env access
 	const value = process.env[name];
 	if (value === undefined || value === "") {
 		throw new Error(`${name} environment variable is not set`);
