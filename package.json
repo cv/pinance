@@ -1,0 +1,32 @@
+{
+  "name": "pinance",
+  "version": "0.1.0",
+  "description": "pi extension for financial data tools (crypto, stocks, SEC filings, etc.)",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "keywords": [
+    "pi",
+    "pi-extension",
+    "finance",
+    "stocks",
+    "crypto",
+    "sec-filings"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@sinclair/typebox": "^0.34.14",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  }
+}
