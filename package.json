@@ -5,6 +5,8 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "typecheck": "tsc --noEmit"
   },
   "pi": {
@@ -22,6 +24,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@sinclair/typebox": "^0.34.14",
     "@types/node": "^22.10.5",
     "typescript": "^5.7.3"
