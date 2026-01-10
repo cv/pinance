@@ -1,63 +1,63 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
-  },
-  "files": {
-    "include": ["src/**/*.ts", "*.json"],
-    "ignore": ["node_modules", "dist", "coverage"]
-  },
-  "organizeImports": {
-    "enabled": true
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "tab",
-    "indentWidth": 2,
-    "lineWidth": 100
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "all": true,
-      "nursery": {
-        "all": true
-      },
-      "correctness": {
-        "noNodejsModules": "off"
-      },
-      "style": {
-        "noDefaultExport": "off",
-        "useNamingConvention": {
-          "level": "error",
-          "options": {
-            "strictCase": false,
-            "conventions": [
-              {
-                "selector": { "kind": "variable" },
-                "formats": ["camelCase", "CONSTANT_CASE", "PascalCase"]
-              },
-              {
-                "selector": { "kind": "function" },
-                "formats": ["camelCase", "PascalCase"]
-              },
-              {
-                "selector": { "kind": "typeLike" },
-                "formats": ["PascalCase"]
-              }
-            ]
-          }
-        }
-      }
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "double",
-      "semicolons": "always",
-      "trailingCommas": "all"
-    }
-  }
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"include": ["src/**/*.ts", "*.json"],
+		"ignore": ["node_modules", "dist", "coverage"]
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineWidth": 100
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"all": true,
+			"nursery": {
+				"all": true
+			},
+			"correctness": {
+				"noNodejsModules": "off"
+			},
+			"style": {
+				"noDefaultExport": "off",
+				"useNamingConvention": {
+					"level": "error",
+					"options": {
+						"strictCase": false,
+						"conventions": [
+							{
+								"selector": { "kind": "variable" },
+								"formats": ["camelCase", "CONSTANT_CASE", "PascalCase"]
+							},
+							{
+								"selector": { "kind": "function" },
+								"formats": ["camelCase", "PascalCase"]
+							},
+							{
+								"selector": { "kind": "typeLike" },
+								"formats": ["PascalCase"]
+							}
+						]
+					}
+				}
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"semicolons": "always",
+			"trailingCommas": "all"
+		}
+	}
 }
