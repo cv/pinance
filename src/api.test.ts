@@ -1,22 +1,25 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { callApi } from "./api.js";
-import { resetConfig } from "./config.js";
-
-// Mock the config module
-vi.mock("./config.js", async (importOriginal) => {
-	const original = await importOriginal<typeof import("./config.js")>();
-	return {
-		...original,
-		getConfig: vi.fn(() => ({
-			financialDatasetsApiKey: "test-api-key",
-		})),
-	};
-});
 
 describe("callApi", () => {
+	const originalEnv = process.env;
+
+	beforeEach(() => {
+		process.env = { ...originalEnv, FINANCIAL_DATASETS_API_KEY: "test-api-key" };
+	});
+
 	afterEach(() => {
+		process.env = originalEnv;
 		vi.restoreAllMocks();
-		resetConfig();
+	});
+
+	it("should throw error when API key is not set", async () => {
+		process.env = { ...originalEnv };
+		process.env.FINANCIAL_DATASETS_API_KEY = undefined;
+
+		await expect(callApi("/test", {})).rejects.toThrow(
+			"FINANCIAL_DATASETS_API_KEY environment variable is not set",
+		);
 	});
 
 	it("should build URL with params", async () => {
