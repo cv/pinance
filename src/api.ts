@@ -34,7 +34,7 @@ export async function callApi<T>(
 		headers: {
 			"x-api-key": apiKey,
 		},
-		signal,
+		signal: signal ?? null,
 	});
 
 	if (!response.ok) {
