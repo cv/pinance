@@ -20,12 +20,15 @@
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@sinclair/typebox": "^0.34.14",
-		"@types/node": "^22.10.5",
+		"@types/node": "^22.19.5",
 		"husky": "^9.1.7",
-		"vitest": "^2.1.8",
-		"typescript": "^5.7.3"
+		"typescript": "^5.7.3",
+		"vitest": "^2.1.8"
 	},
 	"peerDependencies": {
 		"@mariozechner/pi-coding-agent": "*"
+	},
+	"dependencies": {
+		"dotenv": "^17.2.3"
 	}
 }
