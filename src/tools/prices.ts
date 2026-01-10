@@ -1,4 +1,4 @@
-import type { ExtensionAPI, ToolResult } from "@mariozechner/pi-coding-agent";
+import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
 
@@ -56,7 +56,13 @@ export function registerPriceTools(pi: ExtensionAPI): void {
 		description:
 			"Fetches the most recent price snapshot for a stock, including the latest price, trading volume, and OHLC data.",
 		parameters: priceSnapshotParams,
-		async execute(_toolCallId, params, _onUpdate, _ctx, signal): Promise<ToolResult> {
+		execute: async (
+			_toolCallId,
+			params,
+			_onUpdate,
+			_ctx,
+			signal,
+		): Promise<AgentToolResult<unknown>> => {
 			const { data, url } = await callApi<PriceSnapshot>(
 				"/prices/snapshot/",
 				{ ticker: params.ticker },
@@ -81,7 +87,13 @@ export function registerPriceTools(pi: ExtensionAPI): void {
 		description:
 			"Retrieves historical price data for a stock over a date range, including open, high, low, close prices, and volume.",
 		parameters: pricesParams,
-		async execute(_toolCallId, params, _onUpdate, _ctx, signal): Promise<ToolResult> {
+		execute: async (
+			_toolCallId,
+			params,
+			_onUpdate,
+			_ctx,
+			signal,
+		): Promise<AgentToolResult<unknown>> => {
 			const { data, url } = await callApi<PricesResponse>(
 				"/prices/",
 				{
