@@ -1,5 +1,6 @@
 export { registerEstimatesTools } from "./estimates.js";
 export { registerFundamentalsTools } from "./fundamentals.js";
+export { registerInsiderTradesTools } from "./insider-trades.js";
 export { registerMetricsTools } from "./metrics.js";
 export { registerNewsTools } from "./news.js";
 export { registerPriceTools } from "./prices.js";
