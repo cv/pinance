@@ -6,3 +6,4 @@ export { registerInsiderTradesTools } from "./insider-trades.js";
 export { registerMetricsTools } from "./metrics.js";
 export { registerNewsTools } from "./news.js";
 export { registerPriceTools } from "./prices.js";
+export { registerSegmentsTools } from "./segments.js";

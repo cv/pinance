@@ -8,6 +8,7 @@ import {
 	registerMetricsTools,
 	registerNewsTools,
 	registerPriceTools,
+	registerSegmentsTools,
 } from "./tools/index.js";
 
 export default function pinance(pi: ExtensionAPI): void {
@@ -19,4 +20,5 @@ export default function pinance(pi: ExtensionAPI): void {
 	registerMetricsTools(pi);
 	registerNewsTools(pi);
 	registerPriceTools(pi);
+	registerSegmentsTools(pi);
 }
