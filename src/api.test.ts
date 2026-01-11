@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { callApi } from "./api.js";
+import { ApiKeyMissingError, ApiRequestError, callApi } from "./api.js";
 
 describe("callApi", () => {
 	beforeEach(() => {
@@ -11,12 +11,12 @@ describe("callApi", () => {
 		vi.restoreAllMocks();
 	});
 
-	it("should throw error when API key is not set", async () => {
+	it("should throw ApiKeyMissingError when API key is not set", async () => {
 		vi.stubEnv("FINANCIAL_DATASETS_API_KEY", "");
 
-		await expect(callApi("/test", {})).rejects.toThrow(
-			"FINANCIAL_DATASETS_API_KEY environment variable is not set",
-		);
+		await expect(callApi("/test", {})).rejects.toThrow(ApiKeyMissingError);
+		await expect(callApi("/test", {})).rejects.toThrow("FINANCIAL_DATASETS_API_KEY");
+		await expect(callApi("/test", {})).rejects.toThrow("https://financialdatasets.ai");
 	});
 
 	it("should build URL with params", async () => {
@@ -60,12 +60,30 @@ describe("callApi", () => {
 		);
 	});
 
-	it("should throw on non-OK response", async () => {
+	it("should throw ApiRequestError on non-OK response", async () => {
 		vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			new Response("Not Found", { status: 404, statusText: "Not Found" }),
 		);
 
+		await expect(callApi("/test", {})).rejects.toThrow(ApiRequestError);
 		await expect(callApi("/test", {})).rejects.toThrow("API request failed: 404 Not Found");
+		await expect(callApi("/test", {})).rejects.toThrow("Data not found");
+	});
+
+	it("should provide helpful message for 401 errors", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response("Unauthorized", { status: 401, statusText: "Unauthorized" }),
+		);
+
+		await expect(callApi("/test", {})).rejects.toThrow("API key appears to be invalid");
+	});
+
+	it("should provide helpful message for 429 rate limit errors", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response("Too Many Requests", { status: 429, statusText: "Too Many Requests" }),
+		);
+
+		await expect(callApi("/test", {})).rejects.toThrow("Rate limit exceeded");
 	});
 
 	it("should return data and url", async () => {

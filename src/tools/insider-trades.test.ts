@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerInsiderTradesTools } from "./insider-trades.js";
-import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
+import { createMockPi, getResultJson, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -67,7 +67,7 @@ describe("insider-trades tools", () => {
 				},
 				undefined,
 			);
-			expect(JSON.parse(getResultText(result))).toEqual(mockTrades);
+			expect(getResultJson(result)).toEqual(mockTrades);
 			expect(result.details.count).toBe(2);
 		});
 
@@ -112,7 +112,7 @@ describe("insider-trades tools", () => {
 			const tool = getTool(mockPi.tools, "get_insider_trades");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
-			expect(JSON.parse(getResultText(result))).toEqual([]);
+			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);
 		});
 	});

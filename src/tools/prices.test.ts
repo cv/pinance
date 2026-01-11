@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerPriceTools } from "./prices.js";
-import { createMockPi, getResultText, getResultType, getTool, type MockPi } from "./test-utils.js";
+import { createMockPi, getResultJson, getResultType, getTool, type MockPi } from "./test-utils.js";
 
 // Mock the api module
 vi.mock("../api.js", () => ({
@@ -50,7 +50,7 @@ describe("prices tools", () => {
 
 			expect(mockCallApi).toHaveBeenCalledWith("/prices/snapshot/", { ticker: "AAPL" }, undefined);
 			expect(getResultType(result)).toBe("text");
-			expect(JSON.parse(getResultText(result))).toEqual(mockSnapshot);
+			expect(getResultJson(result)).toEqual(mockSnapshot);
 			expect(result.details.url).toBeDefined();
 		});
 
@@ -63,7 +63,7 @@ describe("prices tools", () => {
 			const tool = getTool(mockPi.tools, "get_price_snapshot");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
-			expect(JSON.parse(getResultText(result))).toEqual({});
+			expect(getResultJson(result)).toEqual({});
 		});
 	});
 
@@ -104,7 +104,7 @@ describe("prices tools", () => {
 				},
 				undefined,
 			);
-			expect(JSON.parse(getResultText(result))).toEqual(mockPrices);
+			expect(getResultJson(result)).toEqual(mockPrices);
 			expect(result.details.count).toBe(2);
 		});
 
@@ -159,7 +159,7 @@ describe("prices tools", () => {
 				undefined,
 			);
 
-			expect(JSON.parse(getResultText(result))).toEqual([]);
+			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);
 		});
 	});

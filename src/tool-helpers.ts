@@ -19,6 +19,7 @@ interface SimpleToolConfig<TParams, TResponse> {
 /**
  * Creates and registers a simple API tool with standardized execute pattern.
  * Handles the common pattern of: call API → extract data → return JSON result.
+ * Includes source URL in both the response text (for LLM citation) and details.
  */
 export function registerSimpleTool<TParams, TResponse>(
 	pi: ExtensionAPI,
@@ -49,8 +50,11 @@ export function registerSimpleTool<TParams, TResponse>(
 				details.count = config.getCount(extracted);
 			}
 
+			// Include source URL in response text so LLM can cite it
+			const responseText = `${JSON.stringify(extracted, null, 2)}\n\n[Source: ${url}]`;
+
 			return {
-				content: [{ type: "text", text: JSON.stringify(extracted, null, 2) }],
+				content: [{ type: "text", text: responseText }],
 				details,
 			};
 		},

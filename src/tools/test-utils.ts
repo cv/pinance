@@ -51,6 +51,25 @@ export function getResultText(result: ToolResult): string {
 	return content.text;
 }
 
+/**
+ * Extracts just the JSON data from a tool result, stripping the [Source: ...] suffix.
+ */
+export function getResultJson(result: ToolResult): unknown {
+	const text = getResultText(result);
+	// Strip the [Source: ...] suffix added by tool-helpers
+	const jsonText = text.replace(/\n\n\[Source:.*\]$/, "");
+	return JSON.parse(jsonText);
+}
+
+/**
+ * Extracts the source URL from a tool result.
+ */
+export function getResultSource(result: ToolResult): string | undefined {
+	const text = getResultText(result);
+	const match = text.match(/\[Source: (.+)\]$/);
+	return match?.[1];
+}
+
 export function getResultType(result: ToolResult): string {
 	const content = result.content[0];
 	if (!content) {

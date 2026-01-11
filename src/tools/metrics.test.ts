@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerMetricsTools } from "./metrics.js";
-import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
+import { createMockPi, getResultJson, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -45,7 +45,7 @@ describe("metrics tools", () => {
 				{ ticker: "AAPL" },
 				undefined,
 			);
-			expect(JSON.parse(getResultText(result))).toEqual(mockSnapshot);
+			expect(getResultJson(result)).toEqual(mockSnapshot);
 		});
 
 		it("should handle empty snapshot", async () => {
@@ -57,7 +57,7 @@ describe("metrics tools", () => {
 			const tool = getTool(mockPi.tools, "get_financial_metrics_snapshot");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
-			expect(JSON.parse(getResultText(result))).toEqual({});
+			expect(getResultJson(result)).toEqual({});
 		});
 	});
 
@@ -100,7 +100,7 @@ describe("metrics tools", () => {
 				},
 				undefined,
 			);
-			expect(JSON.parse(getResultText(result))).toEqual(mockMetrics);
+			expect(getResultJson(result)).toEqual(mockMetrics);
 			expect(result.details.count).toBe(2);
 		});
 
@@ -133,7 +133,7 @@ describe("metrics tools", () => {
 			const tool = getTool(mockPi.tools, "get_financial_metrics");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
-			expect(JSON.parse(getResultText(result))).toEqual([]);
+			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);
 		});
 	});

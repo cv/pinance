@@ -54,6 +54,32 @@ Or add to your pi settings (`~/.pi/agent/settings.json`):
 }
 ```
 
+## Example Queries
+
+**Quick lookups:**
+- "What's Apple's P/E ratio?"
+- "Bitcoin price?"
+- "NVDA stock price"
+
+**Financial analysis:**
+- "Compare operating margins of AAPL, MSFT, and GOOGL"
+- "How has Tesla's revenue grown over the last 4 years?"
+- "Is Amazon's balance sheet healthy?"
+
+**SEC filings:**
+- "What are NVDA's main risk factors?"
+- "Summarize Apple's latest 10-K MD&A section"
+- "Recent 8-K filings from Tesla"
+
+**Market signals:**
+- "Any insider buying at Apple recently?"
+- "What's the latest news on META?"
+- "NVDA insider activity and news sentiment"
+
+**Comprehensive research:**
+- "Give me a full overview of MSFT - financials, valuation, and recent news"
+- "Due diligence on CRM - financial health, growth, and insider activity"
+
 ## Workflow Enforcement
 
 The extension injects financial research guidelines into the system prompt, ensuring:

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerFundamentalsTools } from "./fundamentals.js";
-import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
+import { createMockPi, getResultJson, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -61,7 +61,7 @@ describe("fundamentals tools", () => {
 				},
 				undefined,
 			);
-			expect(JSON.parse(getResultText(result))).toEqual(mockData);
+			expect(getResultJson(result)).toEqual(mockData);
 		});
 
 		it("should use default limit", async () => {
@@ -131,7 +131,7 @@ describe("fundamentals tools", () => {
 				undefined,
 			);
 
-			expect(JSON.parse(getResultText(result))).toEqual({});
+			expect(getResultJson(result)).toEqual({});
 		});
 	});
 
@@ -157,7 +157,7 @@ describe("fundamentals tools", () => {
 				expect.objectContaining({ ticker: "MSFT", period: "quarterly" }),
 				undefined,
 			);
-			expect(JSON.parse(getResultText(result))).toEqual(mockData);
+			expect(getResultJson(result)).toEqual(mockData);
 		});
 	});
 
@@ -183,7 +183,7 @@ describe("fundamentals tools", () => {
 				expect.objectContaining({ ticker: "GOOGL", period: "ttm" }),
 				undefined,
 			);
-			expect(JSON.parse(getResultText(result))).toEqual(mockData);
+			expect(getResultJson(result)).toEqual(mockData);
 		});
 	});
 
@@ -213,7 +213,7 @@ describe("fundamentals tools", () => {
 				expect.objectContaining({ ticker: "TSLA", period: "annual" }),
 				undefined,
 			);
-			expect(JSON.parse(getResultText(result))).toEqual(mockData);
+			expect(getResultJson(result)).toEqual(mockData);
 		});
 	});
 });
