@@ -1,4 +1,4 @@
-import { type TObject, type TProperties, Type } from "@sinclair/typebox";
+import { Type } from "@sinclair/typebox";
 
 // Common interval types for price data
 export const IntervalType = Type.Union(
@@ -126,19 +126,3 @@ export const PriceIntervalParams = {
 		}),
 	),
 } as const;
-
-// Common limit parameter
-export const createLimitParam = (defaultValue: number, max?: number) =>
-	Type.Optional(
-		Type.Number({
-			description: max
-				? `Maximum items to return (default: ${defaultValue}, max: ${max})`
-				: `Maximum items to return (default: ${defaultValue})`,
-			default: defaultValue,
-		}),
-	);
-
-// Helper to merge properties into a Type.Object
-export function createSchema<T extends TProperties>(properties: T): TObject<T> {
-	return Type.Object(properties);
-}
