@@ -1,16 +1,8 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { callApi } from "../api.js";
+import { type ArrayResponse, callApi } from "../api.js";
 import { formatItemsDescription, ITEMS_10K_MAP, ITEMS_10Q_MAP } from "../constants.js";
 import { TickerParam } from "../schemas.js";
-
-interface FilingsResponse {
-	filings: Record<string, unknown>[];
-}
-
-interface FilingItemsResponse {
-	[key: string]: unknown;
-}
 
 const filingsParams = Type.Object({
 	ticker: TickerParam,
@@ -77,7 +69,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 			_ctx,
 			signal,
 		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<FilingsResponse>(
+			const { data, url } = await callApi<ArrayResponse<"filings">>(
 				"/filings/",
 				{
 					ticker: params.ticker,
@@ -109,7 +101,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 			_ctx,
 			signal,
 		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<FilingItemsResponse>(
+			const { data, url } = await callApi<Record<string, unknown>>(
 				"/filings/items/",
 				{
 					ticker: params.ticker,
@@ -140,7 +132,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 			_ctx,
 			signal,
 		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<FilingItemsResponse>(
+			const { data, url } = await callApi<Record<string, unknown>>(
 				"/filings/items/",
 				{
 					ticker: params.ticker,
@@ -172,7 +164,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 			_ctx,
 			signal,
 		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<FilingItemsResponse>(
+			const { data, url } = await callApi<Record<string, unknown>>(
 				"/filings/items/",
 				{
 					ticker: params.ticker,
