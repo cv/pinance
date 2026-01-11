@@ -54,6 +54,29 @@ Or add to your pi settings (`~/.pi/agent/settings.json`):
 }
 ```
 
+## Workflow Enforcement
+
+The extension injects financial research guidelines into the system prompt, ensuring:
+
+- **Structured workflow**: Parse → Fetch (parallel) → Validate → Respond
+- **Source citations**: All responses include API URLs used
+- **Key finding first**: Direct answer in the first sentence
+- **Completeness validation**: Verify data for all entities before answering
+
+## Skills
+
+This repository also includes [pi skills](.pi/skills/) with detailed guidance:
+
+| Skill | Description |
+|-------|-------------|
+| [`analyzing-financials`](.pi/skills/analyzing-financials/SKILL.md) | Financial statements, metrics, estimates |
+| [`researching-stocks`](.pi/skills/researching-stocks/SKILL.md) | Multi-step research workflow with checklists |
+| [`reading-sec-filings`](.pi/skills/reading-sec-filings/SKILL.md) | 10-K, 10-Q, 8-K content extraction |
+| [`fetching-prices`](.pi/skills/fetching-prices/SKILL.md) | Stock and crypto price data |
+| [`tracking-signals`](.pi/skills/tracking-signals/SKILL.md) | Insider trades and news |
+
+Skills are loaded automatically when running pi from this directory, or can be copied to `~/.pi/agent/skills/` for global use.
+
 ## Development
 
 ```bash

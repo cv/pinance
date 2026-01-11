@@ -26,6 +26,16 @@ import {
 	registerSegmentsTools,
 } from "./tools/index.js";
 
+interface MockPi {
+	on: ReturnType<typeof vi.fn>;
+}
+
+function createMockPi(): MockPi {
+	return {
+		on: vi.fn(),
+	};
+}
+
 describe("pinance extension", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -36,9 +46,9 @@ describe("pinance extension", () => {
 	});
 
 	it("should register all tools when initialized", () => {
-		const mockPi = {} as never;
+		const mockPi = createMockPi();
 
-		pinance(mockPi);
+		pinance(mockPi as never);
 
 		expect(registerCryptoTools).toHaveBeenCalledWith(mockPi);
 		expect(registerEstimatesTools).toHaveBeenCalledWith(mockPi);
@@ -52,9 +62,9 @@ describe("pinance extension", () => {
 	});
 
 	it("should call all registration functions exactly once", () => {
-		const mockPi = {} as never;
+		const mockPi = createMockPi();
 
-		pinance(mockPi);
+		pinance(mockPi as never);
 
 		expect(registerCryptoTools).toHaveBeenCalledTimes(1);
 		expect(registerEstimatesTools).toHaveBeenCalledTimes(1);
@@ -65,5 +75,13 @@ describe("pinance extension", () => {
 		expect(registerNewsTools).toHaveBeenCalledTimes(1);
 		expect(registerPriceTools).toHaveBeenCalledTimes(1);
 		expect(registerSegmentsTools).toHaveBeenCalledTimes(1);
+	});
+
+	it("should register before_agent_start event handler", () => {
+		const mockPi = createMockPi();
+
+		pinance(mockPi as never);
+
+		expect(mockPi.on).toHaveBeenCalledWith("before_agent_start", expect.any(Function));
 	});
 });
