@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerEstimatesTools } from "./estimates.js";
-import { getTool, type MockTool } from "./test-utils.js";
+import { getResultText, getTool, type MockTool } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -59,7 +59,7 @@ describe("estimates tools", () => {
 				{ ticker: "NVDA", period: "quarterly" },
 				undefined,
 			);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockEstimates);
+			expect(JSON.parse(getResultText(result))).toEqual(mockEstimates);
 			expect(result.details.count).toBe(2);
 		});
 
@@ -88,7 +88,7 @@ describe("estimates tools", () => {
 			const tool = getTool(registeredTools, "get_analyst_estimates");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
-			expect(JSON.parse(result.content[0].text)).toEqual([]);
+			expect(JSON.parse(getResultText(result))).toEqual([]);
 			expect(result.details.count).toBe(0);
 		});
 	});

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerSegmentsTools } from "./segments.js";
-import { getTool, type MockTool } from "./test-utils.js";
+import { getResultText, getTool, type MockTool } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -60,7 +60,7 @@ describe("segments tools", () => {
 				{ ticker: "AAPL", period: "annual", limit: 5 },
 				undefined,
 			);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockSegments);
+			expect(JSON.parse(getResultText(result))).toEqual(mockSegments);
 		});
 
 		it("should use default limit", async () => {
@@ -100,7 +100,7 @@ describe("segments tools", () => {
 				undefined,
 			);
 
-			expect(JSON.parse(result.content[0].text)).toEqual({});
+			expect(JSON.parse(getResultText(result))).toEqual({});
 		});
 	});
 });

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerCryptoTools } from "./crypto.js";
-import { getTool, type MockTool } from "./test-utils.js";
+import { getResultText, getTool, type MockTool } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -52,7 +52,7 @@ describe("crypto tools", () => {
 				{ ticker: "BTC-USD" },
 				undefined,
 			);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockSnapshot);
+			expect(JSON.parse(getResultText(result))).toEqual(mockSnapshot);
 		});
 
 		it("should handle empty snapshot", async () => {
@@ -64,7 +64,7 @@ describe("crypto tools", () => {
 			const tool = getTool(registeredTools, "get_crypto_price_snapshot");
 			const result = await tool.execute("test-id", { ticker: "BTC-USD" }, vi.fn(), {}, undefined);
 
-			expect(JSON.parse(result.content[0].text)).toEqual({});
+			expect(JSON.parse(getResultText(result))).toEqual({});
 		});
 	});
 
@@ -105,7 +105,7 @@ describe("crypto tools", () => {
 				},
 				undefined,
 			);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockPrices);
+			expect(JSON.parse(getResultText(result))).toEqual(mockPrices);
 			expect(result.details.count).toBe(2);
 		});
 
@@ -160,7 +160,7 @@ describe("crypto tools", () => {
 				undefined,
 			);
 
-			expect(JSON.parse(result.content[0].text)).toEqual([]);
+			expect(JSON.parse(getResultText(result))).toEqual([]);
 			expect(result.details.count).toBe(0);
 		});
 	});
@@ -177,7 +177,7 @@ describe("crypto tools", () => {
 			const result = await tool.execute("test-id", {}, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith("/crypto/prices/tickers/", {}, undefined);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockTickers);
+			expect(JSON.parse(getResultText(result))).toEqual(mockTickers);
 			expect(result.details.count).toBe(3);
 		});
 
@@ -190,7 +190,7 @@ describe("crypto tools", () => {
 			const tool = getTool(registeredTools, "get_available_crypto_tickers");
 			const result = await tool.execute("test-id", {}, vi.fn(), {}, undefined);
 
-			expect(JSON.parse(result.content[0].text)).toEqual([]);
+			expect(JSON.parse(getResultText(result))).toEqual([]);
 			expect(result.details.count).toBe(0);
 		});
 	});

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerFilingsTools } from "./filings.js";
-import { getTool, type MockTool } from "./test-utils.js";
+import { getResultText, getTool, type MockTool } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -62,7 +62,7 @@ describe("filings tools", () => {
 				{ ticker: "AAPL", filing_type: "10-K", limit: 5 },
 				undefined,
 			);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockFilings);
+			expect(JSON.parse(getResultText(result))).toEqual(mockFilings);
 			expect(result.details.count).toBe(2);
 		});
 
@@ -91,7 +91,7 @@ describe("filings tools", () => {
 			const tool = getTool(registeredTools, "get_filings");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
-			expect(JSON.parse(result.content[0].text)).toEqual([]);
+			expect(JSON.parse(getResultText(result))).toEqual([]);
 			expect(result.details.count).toBe(0);
 		});
 	});
@@ -123,7 +123,7 @@ describe("filings tools", () => {
 				},
 				undefined,
 			);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockData);
+			expect(JSON.parse(getResultText(result))).toEqual(mockData);
 		});
 
 		it("should work without specific items", async () => {
@@ -176,7 +176,7 @@ describe("filings tools", () => {
 				},
 				undefined,
 			);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockData);
+			expect(JSON.parse(getResultText(result))).toEqual(mockData);
 		});
 	});
 
@@ -206,7 +206,7 @@ describe("filings tools", () => {
 				},
 				undefined,
 			);
-			expect(JSON.parse(result.content[0].text)).toEqual(mockData);
+			expect(JSON.parse(getResultText(result))).toEqual(mockData);
 		});
 	});
 });
