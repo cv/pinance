@@ -1,9 +1,16 @@
-import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { callApi } from "../api.js";
+import { registerArrayTool } from "../tool-helpers.js";
 
 interface NewsResponse {
 	news: Record<string, unknown>[];
+}
+
+interface NewsParams {
+	ticker: string;
+	start_date?: string;
+	end_date?: string;
+	limit?: number;
 }
 
 const newsParams = Type.Object({
@@ -29,36 +36,19 @@ const newsParams = Type.Object({
 });
 
 export function registerNewsTools(pi: ExtensionAPI): void {
-	pi.registerTool({
+	registerArrayTool<NewsParams, NewsResponse>(pi, {
 		name: "get_news",
 		label: "Get News",
 		description:
 			"Retrieves recent news articles for a company, covering financial announcements, market trends, and significant events. Useful for market sentiment analysis.",
 		parameters: newsParams,
-		execute: async (
-			_toolCallId,
-			params,
-			_onUpdate,
-			_ctx,
-			signal,
-		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<NewsResponse>(
-				"/news/",
-				{
-					ticker: params.ticker,
-					start_date: params.start_date,
-					end_date: params.end_date,
-					limit: params.limit ?? 10,
-				},
-				signal,
-			);
-
-			const news = data.news ?? [];
-
-			return {
-				content: [{ type: "text", text: JSON.stringify(news, null, 2) }],
-				details: { url, count: news.length },
-			};
-		},
+		endpoint: "/news/",
+		buildParams: (params) => ({
+			ticker: params.ticker,
+			start_date: params.start_date,
+			end_date: params.end_date,
+			limit: params.limit ?? 10,
+		}),
+		extractData: (response) => response.news ?? [],
 	});
 }

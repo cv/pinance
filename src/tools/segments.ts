@@ -1,9 +1,15 @@
-import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { callApi } from "../api.js";
+import { registerSimpleTool } from "../tool-helpers.js";
 
 interface SegmentedRevenuesResponse {
 	segmented_revenues: Record<string, unknown>;
+}
+
+interface SegmentedRevenuesParams {
+	ticker: string;
+	period: "annual" | "quarterly";
+	limit?: number;
 }
 
 const segmentedRevenuesParams = Type.Object({
@@ -22,33 +28,18 @@ const segmentedRevenuesParams = Type.Object({
 });
 
 export function registerSegmentsTools(pi: ExtensionAPI): void {
-	pi.registerTool({
+	registerSimpleTool<SegmentedRevenuesParams, SegmentedRevenuesResponse>(pi, {
 		name: "get_segmented_revenues",
 		label: "Get Segmented Revenues",
 		description:
 			"Provides revenue breakdown by operating segments (products, services, geographic regions). Useful for analyzing revenue composition.",
 		parameters: segmentedRevenuesParams,
-		execute: async (
-			_toolCallId,
-			params,
-			_onUpdate,
-			_ctx,
-			signal,
-		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<SegmentedRevenuesResponse>(
-				"/financials/segmented-revenues/",
-				{
-					ticker: params.ticker,
-					period: params.period,
-					limit: params.limit ?? 10,
-				},
-				signal,
-			);
-
-			return {
-				content: [{ type: "text", text: JSON.stringify(data.segmented_revenues ?? {}, null, 2) }],
-				details: { url },
-			};
-		},
+		endpoint: "/financials/segmented-revenues/",
+		buildParams: (params) => ({
+			ticker: params.ticker,
+			period: params.period,
+			limit: params.limit ?? 10,
+		}),
+		extractData: (response) => response.segmented_revenues ?? {},
 	});
 }
