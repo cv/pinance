@@ -46,13 +46,15 @@ npm run check:fix
 
 ## Adding New Tools
 
-Each tool should:
+Each tool module should:
 
-1. Have its own file in `src/tools/`
-2. Use TypeBox for parameter schemas
-3. Include proper error handling
-4. Have corresponding tests in `src/tools/*.test.ts`
-5. Be registered in `src/index.ts`
+1. Create a file in `src/tools/` (e.g., `src/tools/my-feature.ts`)
+2. Use [TypeBox](https://github.com/sinclairzx81/typebox) for parameter schemas (see `src/schemas.ts` for shared types)
+3. Use `registerSimpleTool` or `registerArrayTool` helpers from `src/tool-helpers.ts`
+4. Export a `register*Tools(pi: ExtensionAPI)` function
+5. Add export to `src/tools/index.ts`
+6. Call the register function in `src/index.ts`
+7. Add corresponding tests in `src/tools/*.test.ts`
 
 ## Reporting Issues
 

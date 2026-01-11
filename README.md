@@ -2,28 +2,41 @@
 
 A [pi](https://github.com/badlogic/pi-mono) extension for financial data tools. Provides access to stock prices, crypto prices, SEC filings, financial statements, and more.
 
+This project is a TypeScript port of [virattt/dexter](https://github.com/virattt/dexter), a Python-based financial AI agent.
+
 ## Features
 
-- **Stock Prices** - Real-time snapshots and historical price data
-- **Crypto Prices** - Cryptocurrency price data and available tickers
-- **SEC Filings** - 10-K, 10-Q, and 8-K filing metadata and content
-- **Financial Statements** - Income statements, balance sheets, cash flow statements
-- **Financial Metrics** - P/E ratio, market cap, dividend yield, and more
-- **Analyst Estimates** - EPS estimates and analyst expectations
-- **Insider Trades** - SEC Form 4 insider trading data
-- **Company News** - Recent news articles for companies
-- **Segmented Revenues** - Revenue breakdown by segment
+**19 tools** for comprehensive financial data access:
+
+| Category | Tools |
+|----------|-------|
+| **Stock Prices** | `get_price_snapshot`, `get_prices` |
+| **Crypto Prices** | `get_crypto_price_snapshot`, `get_crypto_prices`, `get_available_crypto_tickers` |
+| **SEC Filings** | `get_filings`, `get_10K_filing_items`, `get_10Q_filing_items`, `get_8K_filing_items` |
+| **Financial Statements** | `get_income_statements`, `get_balance_sheets`, `get_cash_flow_statements`, `get_all_financial_statements` |
+| **Financial Metrics** | `get_financial_metrics_snapshot`, `get_financial_metrics` |
+| **Analyst Estimates** | `get_analyst_estimates` |
+| **Insider Trades** | `get_insider_trades` |
+| **Company News** | `get_news` |
+| **Revenue Segments** | `get_segmented_revenues` |
 
 ## Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/cv/pinance.git
-
-# Install dependencies
 cd pinance
 npm install
 ```
+
+## API Key
+
+This extension uses the [Financial Datasets API](https://financialdatasets.ai/). Set your API key:
+
+```bash
+export FINANCIAL_DATASETS_API_KEY=your_api_key_here
+```
+
+Or create a `.env` file (see [`.env.example`](.env.example)).
 
 ## Usage
 
@@ -41,30 +54,18 @@ Or add to your pi settings (`~/.pi/agent/settings.json`):
 }
 ```
 
-## API Key
-
-This extension uses the [Financial Datasets API](https://financialdatasets.ai/). Set your API key:
-
-```bash
-export FINANCIAL_DATASETS_API_KEY=your_api_key_here
-```
-
 ## Development
 
 ```bash
-# Run linter and formatter
-npm run check
-
-# Auto-fix issues
-npm run check:fix
-
-# Type check
-npm run typecheck
-
-# Run tests
-npm test
+npm run check       # Lint and format (Biome)
+npm run check:fix   # Auto-fix lint/format issues
+npm run typecheck   # TypeScript type check
+npm test            # Run unit tests
+npm run test:e2e    # Run e2e tests (requires API key)
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 ## License
 
-MIT
+[MIT](LICENSE)
