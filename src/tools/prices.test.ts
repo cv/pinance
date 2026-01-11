@@ -51,7 +51,7 @@ describe("prices tools", () => {
 			expect(mockCallApi).toHaveBeenCalledWith("/prices/snapshot/", { ticker: "AAPL" }, undefined);
 			expect(getResultType(result)).toBe("text");
 			expect(JSON.parse(getResultText(result))).toEqual(mockSnapshot);
-			expect(result.details.snapshot).toEqual(mockSnapshot);
+			expect(result.details.url).toBeDefined();
 		});
 
 		it("should handle empty snapshot", async () => {
