@@ -1,7 +1,17 @@
-import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { callApi } from "../api.js";
 import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
+import { registerSimpleTool } from "../tool-helpers.js";
+
+interface FinancialStatementsParams {
+	ticker: string;
+	period: "annual" | "quarterly" | "ttm";
+	limit?: number;
+	report_period_gt?: string;
+	report_period_gte?: string;
+	report_period_lt?: string;
+	report_period_lte?: string;
+}
 
 const financialStatementsParams = Type.Object({
 	ticker: TickerParam,
@@ -15,21 +25,15 @@ const financialStatementsParams = Type.Object({
 	...ReportPeriodFilterParams,
 });
 
-type FinancialStatementsParams = typeof financialStatementsParams.static;
-
-function buildParams(
-	params: FinancialStatementsParams,
-): Record<string, string | number | undefined> {
-	return {
-		ticker: params.ticker,
-		period: params.period,
-		limit: params.limit ?? 10,
-		report_period_gt: params.report_period_gt,
-		report_period_gte: params.report_period_gte,
-		report_period_lt: params.report_period_lt,
-		report_period_lte: params.report_period_lte,
-	};
-}
+const buildParams = (params: FinancialStatementsParams) => ({
+	ticker: params.ticker,
+	period: params.period,
+	limit: params.limit ?? 10,
+	report_period_gt: params.report_period_gt,
+	report_period_gte: params.report_period_gte,
+	report_period_lt: params.report_period_lt,
+	report_period_lte: params.report_period_lte,
+});
 
 interface FinancialToolConfig {
 	name: string;
@@ -76,29 +80,14 @@ const financialTools: FinancialToolConfig[] = [
 
 export function registerFundamentalsTools(pi: ExtensionAPI): void {
 	for (const tool of financialTools) {
-		pi.registerTool({
+		registerSimpleTool<FinancialStatementsParams, Record<string, unknown>>(pi, {
 			name: tool.name,
 			label: tool.label,
 			description: tool.description,
 			parameters: financialStatementsParams,
-			execute: async (
-				_toolCallId,
-				params,
-				_onUpdate,
-				_ctx,
-				signal,
-			): Promise<AgentToolResult<unknown>> => {
-				const { data, url } = await callApi<Record<string, unknown>>(
-					tool.endpoint,
-					buildParams(params as FinancialStatementsParams),
-					signal,
-				);
-
-				return {
-					content: [{ type: "text", text: JSON.stringify(data[tool.responseKey] ?? {}, null, 2) }],
-					details: { url },
-				};
-			},
+			endpoint: tool.endpoint,
+			buildParams,
+			extractData: (data) => data[tool.responseKey] ?? {},
 		});
 	}
 }
