@@ -1,6 +1,6 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { TickerParam } from "../schemas.js";
+import { OptionalDateRangeParams, TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
 interface NewsResponse {
@@ -16,16 +16,7 @@ interface NewsParams {
 
 const newsParams = Type.Object({
 	ticker: TickerParam,
-	start_date: Type.Optional(
-		Type.String({
-			description: "Start date for news articles (YYYY-MM-DD)",
-		}),
-	),
-	end_date: Type.Optional(
-		Type.String({
-			description: "End date for news articles (YYYY-MM-DD)",
-		}),
-	),
+	...OptionalDateRangeParams,
 	limit: Type.Optional(
 		Type.Number({
 			description: "Number of articles to retrieve (default: 10, max: 100)",
