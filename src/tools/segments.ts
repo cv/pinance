@@ -1,5 +1,6 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
+import { TickerParam } from "../schemas.js";
 import { registerSimpleTool } from "../tool-helpers.js";
 
 interface SegmentedRevenuesResponse {
@@ -13,9 +14,7 @@ interface SegmentedRevenuesParams {
 }
 
 const segmentedRevenuesParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	period: Type.Union([Type.Literal("annual"), Type.Literal("quarterly")], {
 		description: "Reporting period: 'annual' or 'quarterly'",
 	}),

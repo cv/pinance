@@ -1,6 +1,7 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
+import { TickerParam } from "../schemas.js";
 
 interface MetricsSnapshotResponse {
 	snapshot: Record<string, unknown>;
@@ -11,15 +12,11 @@ interface MetricsResponse {
 }
 
 const metricsSnapshotParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 });
 
 const metricsParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	period: Type.Optional(
 		Type.Union([Type.Literal("annual"), Type.Literal("quarterly"), Type.Literal("ttm")], {
 			description: "Reporting period (default: 'ttm')",

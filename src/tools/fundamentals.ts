@@ -1,6 +1,7 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
+import { TickerParam } from "../schemas.js";
 
 interface IncomeStatementsResponse {
 	income_statements: Record<string, unknown>;
@@ -19,9 +20,7 @@ interface FinancialsResponse {
 }
 
 const financialStatementsParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	period: Type.Union([Type.Literal("annual"), Type.Literal("quarterly"), Type.Literal("ttm")], {
 		description:
 			"Reporting period: 'annual' for yearly, 'quarterly' for quarterly, 'ttm' for trailing twelve months",

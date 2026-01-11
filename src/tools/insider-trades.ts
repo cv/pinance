@@ -1,15 +1,14 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
+import { TickerParam } from "../schemas.js";
 
 interface InsiderTradesResponse {
 	insider_trades: Record<string, unknown>[];
 }
 
 const insiderTradesParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	limit: Type.Optional(
 		Type.Number({
 			description: "Maximum trades to return (default: 100, max: 1000)",

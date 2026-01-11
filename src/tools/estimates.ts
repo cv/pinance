@@ -1,5 +1,6 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
+import { TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
 interface EstimatesResponse {
@@ -12,9 +13,7 @@ interface EstimatesParams {
 }
 
 const estimatesParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	period: Type.Optional(
 		Type.Union([Type.Literal("annual"), Type.Literal("quarterly")], {
 			description: "Period for estimates: 'annual' or 'quarterly' (default: 'annual')",

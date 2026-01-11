@@ -2,6 +2,7 @@ import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agen
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
 import { formatItemsDescription, ITEMS_10K_MAP, ITEMS_10Q_MAP } from "../constants.js";
+import { TickerParam } from "../schemas.js";
 
 interface FilingsResponse {
 	filings: Record<string, unknown>[];
@@ -12,9 +13,7 @@ interface FilingItemsResponse {
 }
 
 const filingsParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	filing_type: Type.Optional(
 		Type.Union([Type.Literal("10-K"), Type.Literal("10-Q"), Type.Literal("8-K")], {
 			description:
@@ -30,9 +29,7 @@ const filingsParams = Type.Object({
 });
 
 const filing10KItemsParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	year: Type.Number({
 		description: "The year of the 10-K filing (e.g., 2023)",
 	}),
@@ -44,9 +41,7 @@ const filing10KItemsParams = Type.Object({
 });
 
 const filing10QItemsParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	year: Type.Number({
 		description: "The year of the 10-Q filing (e.g., 2023)",
 	}),
@@ -61,9 +56,7 @@ const filing10QItemsParams = Type.Object({
 });
 
 const filing8KItemsParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	accession_number: Type.String({
 		description:
 			"SEC accession number for the 8-K (e.g., '0000320193-24-000123'). Get from get_filings.",

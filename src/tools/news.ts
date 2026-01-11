@@ -1,5 +1,6 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
+import { TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
 interface NewsResponse {
@@ -14,9 +15,7 @@ interface NewsParams {
 }
 
 const newsParams = Type.Object({
-	ticker: Type.String({
-		description: "The stock ticker symbol (e.g., 'AAPL' for Apple)",
-	}),
+	ticker: TickerParam,
 	start_date: Type.Optional(
 		Type.String({
 			description: "Start date for news articles (YYYY-MM-DD)",
