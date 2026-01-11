@@ -97,7 +97,7 @@ describe("filings tools", () => {
 	});
 
 	describe("get_10K_filing_items", () => {
-		it("should call API with ticker uppercased", async () => {
+		it("should call API with correct parameters", async () => {
 			const mockData = { "Item-1": "Business description..." };
 			mockCallApi.mockResolvedValue({
 				data: mockData,
@@ -113,10 +113,11 @@ describe("filings tools", () => {
 				undefined,
 			);
 
+			// Ticker normalization happens in callApi, so tool passes original value
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/filings/items/",
 				{
-					ticker: "AAPL",
+					ticker: "aapl",
 					filing_type: "10-K",
 					year: 2023,
 					item: ["Item-1", "Item-1A"],
@@ -165,10 +166,11 @@ describe("filings tools", () => {
 				undefined,
 			);
 
+			// Ticker normalization happens in callApi, so tool passes original value
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/filings/items/",
 				{
-					ticker: "GOOGL",
+					ticker: "googl",
 					filing_type: "10-Q",
 					year: 2024,
 					quarter: 1,
@@ -197,10 +199,11 @@ describe("filings tools", () => {
 				undefined,
 			);
 
+			// Ticker normalization happens in callApi, so tool passes original value
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/filings/items/",
 				{
-					ticker: "TSLA",
+					ticker: "tsla",
 					filing_type: "8-K",
 					accession_number: "0001628280-24-012345",
 				},

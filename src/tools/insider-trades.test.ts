@@ -59,10 +59,11 @@ describe("insider-trades tools", () => {
 				undefined,
 			);
 
+			// Ticker normalization happens in callApi, so tool passes original value
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/insider-trades/",
 				{
-					ticker: "AAPL",
+					ticker: "aapl",
 					limit: 50,
 					filing_date: undefined,
 					filing_date_gt: undefined,
@@ -76,7 +77,7 @@ describe("insider-trades tools", () => {
 			expect(result.details.count).toBe(2);
 		});
 
-		it("should uppercase ticker", async () => {
+		it("should pass ticker to API (normalization happens in callApi)", async () => {
 			mockCallApi.mockResolvedValue({
 				data: { insider_trades: [] },
 				url: "https://api.financialdatasets.ai/insider-trades/",
@@ -87,7 +88,7 @@ describe("insider-trades tools", () => {
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/insider-trades/",
-				expect.objectContaining({ ticker: "MSFT" }),
+				expect.objectContaining({ ticker: "msft" }),
 				undefined,
 			);
 		});

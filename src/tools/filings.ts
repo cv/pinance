@@ -119,7 +119,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 			const { data, url } = await callApi<FilingItemsResponse>(
 				"/filings/items/",
 				{
-					ticker: params.ticker.toUpperCase(),
+					ticker: params.ticker,
 					filing_type: "10-K",
 					year: params.year,
 					item: params.item,
@@ -150,7 +150,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 			const { data, url } = await callApi<FilingItemsResponse>(
 				"/filings/items/",
 				{
-					ticker: params.ticker.toUpperCase(),
+					ticker: params.ticker,
 					filing_type: "10-Q",
 					year: params.year,
 					quarter: params.quarter,
@@ -182,7 +182,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 			const { data, url } = await callApi<FilingItemsResponse>(
 				"/filings/items/",
 				{
-					ticker: params.ticker.toUpperCase(),
+					ticker: params.ticker,
 					filing_type: "8-K",
 					accession_number: params.accession_number,
 				},

@@ -80,4 +80,17 @@ describe("callApi", () => {
 		expect(result.data).toEqual({ snapshot: { price: 150 } });
 		expect(result.url).toBe("https://api.financialdatasets.ai/prices/snapshot/?ticker=AAPL");
 	});
+
+	it("should normalize ticker to uppercase", async () => {
+		const mockFetch = vi
+			.spyOn(globalThis, "fetch")
+			.mockResolvedValue(new Response(JSON.stringify({ data: "test" }), { status: 200 }));
+
+		await callApi("/prices/snapshot/", { ticker: "aapl" });
+
+		expect(mockFetch).toHaveBeenCalledWith(
+			"https://api.financialdatasets.ai/prices/snapshot/?ticker=AAPL",
+			expect.any(Object),
+		);
+	});
 });

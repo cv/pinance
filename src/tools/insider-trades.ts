@@ -60,7 +60,7 @@ export function registerInsiderTradesTools(pi: ExtensionAPI): void {
 			const { data, url } = await callApi<InsiderTradesResponse>(
 				"/insider-trades/",
 				{
-					ticker: params.ticker.toUpperCase(),
+					ticker: params.ticker,
 					limit: params.limit ?? 100,
 					filing_date: params.filing_date,
 					filing_date_gt: params.filing_date_gt,
