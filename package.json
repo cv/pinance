@@ -7,8 +7,10 @@
 	"scripts": {
 		"check": "biome check .",
 		"check:fix": "biome check --write .",
-		"test": "vitest run",
-		"test:watch": "vitest",
+		"test": "vitest run --exclude src/e2e.test.ts",
+		"test:e2e": "vitest run src/e2e.test.ts",
+		"test:all": "vitest run",
+		"test:watch": "vitest --exclude src/e2e.test.ts",
 		"typecheck": "tsc --noEmit",
 		"prepare": "husky"
 	},
@@ -30,14 +32,12 @@
 		"@biomejs/biome": "^2.3.11",
 		"@sinclair/typebox": "^0.34.14",
 		"@types/node": "^25.0.6",
+		"dotenv": "^17.2.3",
 		"husky": "^9.1.7",
 		"typescript": "^5.7.3",
 		"vitest": "^4.0.16"
 	},
 	"peerDependencies": {
 		"@mariozechner/pi-coding-agent": "*"
-	},
-	"dependencies": {
-		"dotenv": "^17.2.3"
 	}
 }
