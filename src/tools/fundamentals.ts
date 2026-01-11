@@ -3,22 +3,6 @@ import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
 import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
 
-interface IncomeStatementsResponse {
-	income_statements: Record<string, unknown>;
-}
-
-interface BalanceSheetsResponse {
-	balance_sheets: Record<string, unknown>;
-}
-
-interface CashFlowStatementsResponse {
-	cash_flow_statements: Record<string, unknown>;
-}
-
-interface FinancialsResponse {
-	financials: Record<string, unknown>;
-}
-
 const financialStatementsParams = Type.Object({
 	ticker: TickerParam,
 	period: PeriodType,
@@ -47,108 +31,74 @@ function buildParams(
 	};
 }
 
-export function registerFundamentalsTools(pi: ExtensionAPI): void {
-	pi.registerTool({
+interface FinancialToolConfig {
+	name: string;
+	label: string;
+	description: string;
+	endpoint: string;
+	responseKey: string;
+}
+
+const financialTools: FinancialToolConfig[] = [
+	{
 		name: "get_income_statements",
 		label: "Get Income Statements",
 		description:
 			"Fetches income statements detailing revenues, expenses, and net income. Useful for evaluating profitability and operational efficiency.",
-		parameters: financialStatementsParams,
-		execute: async (
-			_toolCallId,
-			params,
-			_onUpdate,
-			_ctx,
-			signal,
-		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<IncomeStatementsResponse>(
-				"/financials/income-statements/",
-				buildParams(params),
-				signal,
-			);
-
-			return {
-				content: [{ type: "text", text: JSON.stringify(data.income_statements ?? {}, null, 2) }],
-				details: { url },
-			};
-		},
-	});
-
-	pi.registerTool({
+		endpoint: "/financials/income-statements/",
+		responseKey: "income_statements",
+	},
+	{
 		name: "get_balance_sheets",
 		label: "Get Balance Sheets",
 		description:
 			"Retrieves balance sheets showing assets, liabilities, and shareholders' equity. Useful for assessing financial position.",
-		parameters: financialStatementsParams,
-		execute: async (
-			_toolCallId,
-			params,
-			_onUpdate,
-			_ctx,
-			signal,
-		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<BalanceSheetsResponse>(
-				"/financials/balance-sheets/",
-				buildParams(params),
-				signal,
-			);
-
-			return {
-				content: [{ type: "text", text: JSON.stringify(data.balance_sheets ?? {}, null, 2) }],
-				details: { url },
-			};
-		},
-	});
-
-	pi.registerTool({
+		endpoint: "/financials/balance-sheets/",
+		responseKey: "balance_sheets",
+	},
+	{
 		name: "get_cash_flow_statements",
 		label: "Get Cash Flow Statements",
 		description:
 			"Retrieves cash flow statements showing operating, investing, and financing activities. Useful for understanding liquidity and solvency.",
-		parameters: financialStatementsParams,
-		execute: async (
-			_toolCallId,
-			params,
-			_onUpdate,
-			_ctx,
-			signal,
-		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<CashFlowStatementsResponse>(
-				"/financials/cash-flow-statements/",
-				buildParams(params),
-				signal,
-			);
-
-			return {
-				content: [{ type: "text", text: JSON.stringify(data.cash_flow_statements ?? {}, null, 2) }],
-				details: { url },
-			};
-		},
-	});
-
-	pi.registerTool({
+		endpoint: "/financials/cash-flow-statements/",
+		responseKey: "cash_flow_statements",
+	},
+	{
 		name: "get_all_financial_statements",
 		label: "Get All Financial Statements",
 		description:
 			"Retrieves all three financial statements (income, balance sheet, cash flow) in one call. More efficient for comprehensive analysis.",
-		parameters: financialStatementsParams,
-		execute: async (
-			_toolCallId,
-			params,
-			_onUpdate,
-			_ctx,
-			signal,
-		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<FinancialsResponse>(
-				"/financials/",
-				buildParams(params),
-				signal,
-			);
+		endpoint: "/financials/",
+		responseKey: "financials",
+	},
+];
 
-			return {
-				content: [{ type: "text", text: JSON.stringify(data.financials ?? {}, null, 2) }],
-				details: { url },
-			};
-		},
-	});
+export function registerFundamentalsTools(pi: ExtensionAPI): void {
+	for (const tool of financialTools) {
+		pi.registerTool({
+			name: tool.name,
+			label: tool.label,
+			description: tool.description,
+			parameters: financialStatementsParams,
+			execute: async (
+				_toolCallId,
+				params,
+				_onUpdate,
+				_ctx,
+				signal,
+			): Promise<AgentToolResult<unknown>> => {
+				const { data, url } = await callApi<Record<string, unknown>>(
+					tool.endpoint,
+					buildParams(params as FinancialStatementsParams),
+					signal,
+				);
+
+				return {
+					content: [{ type: "text", text: JSON.stringify(data[tool.responseKey] ?? {}, null, 2) }],
+					details: { url },
+				};
+			},
+		});
+	}
 }
