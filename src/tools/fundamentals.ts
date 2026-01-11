@@ -1,7 +1,7 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
-import { TickerParam } from "../schemas.js";
+import { PeriodType, TickerParam } from "../schemas.js";
 
 interface IncomeStatementsResponse {
 	income_statements: Record<string, unknown>;
@@ -21,10 +21,7 @@ interface FinancialsResponse {
 
 const financialStatementsParams = Type.Object({
 	ticker: TickerParam,
-	period: Type.Union([Type.Literal("annual"), Type.Literal("quarterly"), Type.Literal("ttm")], {
-		description:
-			"Reporting period: 'annual' for yearly, 'quarterly' for quarterly, 'ttm' for trailing twelve months",
-	}),
+	period: PeriodType,
 	limit: Type.Optional(
 		Type.Number({
 			description: "Maximum number of periods to return (default: 10)",

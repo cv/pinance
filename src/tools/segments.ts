@@ -1,6 +1,6 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { TickerParam } from "../schemas.js";
+import { PeriodTypeNoTtm, TickerParam } from "../schemas.js";
 import { registerSimpleTool } from "../tool-helpers.js";
 
 interface SegmentedRevenuesResponse {
@@ -15,9 +15,7 @@ interface SegmentedRevenuesParams {
 
 const segmentedRevenuesParams = Type.Object({
 	ticker: TickerParam,
-	period: Type.Union([Type.Literal("annual"), Type.Literal("quarterly")], {
-		description: "Reporting period: 'annual' or 'quarterly'",
-	}),
+	period: PeriodTypeNoTtm,
 	limit: Type.Optional(
 		Type.Number({
 			description: "Number of periods to retrieve (default: 10)",

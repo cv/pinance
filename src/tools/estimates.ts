@@ -1,6 +1,6 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { TickerParam } from "../schemas.js";
+import { PeriodTypeNoTtm, TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
 interface EstimatesResponse {
@@ -14,12 +14,7 @@ interface EstimatesParams {
 
 const estimatesParams = Type.Object({
 	ticker: TickerParam,
-	period: Type.Optional(
-		Type.Union([Type.Literal("annual"), Type.Literal("quarterly")], {
-			description: "Period for estimates: 'annual' or 'quarterly' (default: 'annual')",
-			default: "annual",
-		}),
-	),
+	period: Type.Optional(PeriodTypeNoTtm),
 });
 
 export function registerEstimatesTools(pi: ExtensionAPI): void {
