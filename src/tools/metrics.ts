@@ -1,12 +1,14 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import type { ArrayResponse, SnapshotResponse } from "../api.js";
-import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
+import {
+	PeriodType,
+	ReportPeriodFilterParams,
+	TickerOnlyParams,
+	type TickerOnlyParamsType,
+	TickerParam,
+} from "../schemas.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
-
-interface MetricsSnapshotParams {
-	ticker: string;
-}
 
 interface MetricsParams {
 	ticker: string;
@@ -18,10 +20,6 @@ interface MetricsParams {
 	report_period_lt?: string;
 	report_period_lte?: string;
 }
-
-const metricsSnapshotParams = Type.Object({
-	ticker: TickerParam,
-});
 
 const metricsParams = Type.Object({
 	ticker: TickerParam,
@@ -41,12 +39,12 @@ const metricsParams = Type.Object({
 });
 
 export function registerMetricsTools(pi: ExtensionAPI): void {
-	registerSimpleTool<MetricsSnapshotParams, SnapshotResponse>(pi, {
+	registerSimpleTool<TickerOnlyParamsType, SnapshotResponse>(pi, {
 		name: "get_financial_metrics_snapshot",
 		label: "Get Financial Metrics Snapshot",
 		description:
 			"Fetches current financial metrics including market cap, P/E ratio, and dividend yield. Useful for a quick overview of financial health.",
-		parameters: metricsSnapshotParams,
+		parameters: TickerOnlyParams,
 		endpoint: "/financial-metrics/snapshot/",
 		buildParams: (params) => ({ ticker: params.ticker }),
 		extractData: (response) => response.snapshot ?? {},

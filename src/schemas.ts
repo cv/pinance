@@ -39,6 +39,13 @@ export const CryptoTickerParam = Type.String({
 		"Crypto ticker (e.g., 'BTC-USD' for Bitcoin in USD, 'BTC-ETH' for Bitcoin in Ethereum)",
 });
 
+// Common ticker-only params schemas (for snapshot endpoints)
+export const TickerOnlyParams = Type.Object({ ticker: TickerParam });
+export const CryptoTickerOnlyParams = Type.Object({ ticker: CryptoTickerParam });
+
+// TypeScript type for ticker-only params
+export type TickerOnlyParamsType = { ticker: string };
+
 // Date range parameters
 export const DateRangeParams = {
 	start_date: Type.String({

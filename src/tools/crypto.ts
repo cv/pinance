@@ -1,15 +1,17 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import type { ArrayResponse, SnapshotResponse } from "../api.js";
-import { CryptoTickerParam, DateRangeParams, PriceIntervalParams } from "../schemas.js";
+import {
+	CryptoTickerOnlyParams,
+	CryptoTickerParam,
+	DateRangeParams,
+	PriceIntervalParams,
+	type TickerOnlyParamsType,
+} from "../schemas.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
 
 interface TickersResponse {
 	tickers: string[];
-}
-
-interface CryptoSnapshotParams {
-	ticker: string;
 }
 
 interface CryptoPricesParams {
@@ -20,10 +22,6 @@ interface CryptoPricesParams {
 	end_date: string;
 }
 
-const cryptoSnapshotParams = Type.Object({
-	ticker: CryptoTickerParam,
-});
-
 const cryptoPricesParams = Type.Object({
 	ticker: CryptoTickerParam,
 	...PriceIntervalParams,
@@ -31,12 +29,12 @@ const cryptoPricesParams = Type.Object({
 });
 
 export function registerCryptoTools(pi: ExtensionAPI): void {
-	registerSimpleTool<CryptoSnapshotParams, SnapshotResponse>(pi, {
+	registerSimpleTool<TickerOnlyParamsType, SnapshotResponse>(pi, {
 		name: "get_crypto_price_snapshot",
 		label: "Get Crypto Price Snapshot",
 		description:
 			"Fetches the most recent price snapshot for a cryptocurrency, including price, volume, and OHLC data.",
-		parameters: cryptoSnapshotParams,
+		parameters: CryptoTickerOnlyParams,
 		endpoint: "/crypto/prices/snapshot/",
 		buildParams: (params) => ({ ticker: params.ticker }),
 		extractData: (response) => response.snapshot ?? {},

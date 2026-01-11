@@ -1,12 +1,14 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import type { ArrayResponse, SnapshotResponse } from "../api.js";
-import { DateRangeParams, PriceIntervalParams, TickerParam } from "../schemas.js";
+import {
+	DateRangeParams,
+	PriceIntervalParams,
+	TickerOnlyParams,
+	type TickerOnlyParamsType,
+	TickerParam,
+} from "../schemas.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
-
-interface PriceSnapshotParams {
-	ticker: string;
-}
 
 interface PricesParams {
 	ticker: string;
@@ -16,10 +18,6 @@ interface PricesParams {
 	end_date: string;
 }
 
-const priceSnapshotParams = Type.Object({
-	ticker: TickerParam,
-});
-
 const pricesParams = Type.Object({
 	ticker: TickerParam,
 	...PriceIntervalParams,
@@ -27,12 +25,12 @@ const pricesParams = Type.Object({
 });
 
 export function registerPriceTools(pi: ExtensionAPI): void {
-	registerSimpleTool<PriceSnapshotParams, SnapshotResponse>(pi, {
+	registerSimpleTool<TickerOnlyParamsType, SnapshotResponse>(pi, {
 		name: "get_price_snapshot",
 		label: "Get Price Snapshot",
 		description:
 			"Fetches the most recent price snapshot for a stock, including the latest price, trading volume, and OHLC data.",
-		parameters: priceSnapshotParams,
+		parameters: TickerOnlyParams,
 		endpoint: "/prices/snapshot/",
 		buildParams: (params) => ({ ticker: params.ticker }),
 		extractData: (response) => response.snapshot ?? {},
