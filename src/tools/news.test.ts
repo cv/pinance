@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerNewsTools } from "./news.js";
-import { getResultText, getTool, type MockTool } from "./test-utils.js";
+import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -11,16 +11,10 @@ import { callApi } from "../api.js";
 const mockCallApi = vi.mocked(callApi);
 
 describe("news tools", () => {
-	let registeredTools: Map<string, MockTool>;
-	let mockPi: { registerTool: ReturnType<typeof vi.fn> };
+	let mockPi: MockPi;
 
 	beforeEach(() => {
-		registeredTools = new Map();
-		mockPi = {
-			registerTool: vi.fn((tool) => {
-				registeredTools.set(tool.name, tool);
-			}),
-		};
+		mockPi = createMockPi();
 		registerNewsTools(mockPi as never);
 	});
 
@@ -30,7 +24,7 @@ describe("news tools", () => {
 
 	describe("registerNewsTools", () => {
 		it("should register get_news tool", () => {
-			expect(registeredTools.has("get_news")).toBe(true);
+			expect(mockPi.tools.has("get_news")).toBe(true);
 		});
 	});
 
@@ -45,7 +39,7 @@ describe("news tools", () => {
 				url: "https://api.financialdatasets.ai/news/",
 			});
 
-			const tool = getTool(registeredTools, "get_news");
+			const tool = getTool(mockPi.tools, "get_news");
 			const result = await tool.execute(
 				"test-id",
 				{
@@ -79,7 +73,7 @@ describe("news tools", () => {
 				url: "https://api.financialdatasets.ai/news/",
 			});
 
-			const tool = getTool(registeredTools, "get_news");
+			const tool = getTool(mockPi.tools, "get_news");
 			await tool.execute("test-id", { ticker: "MSFT" }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -100,7 +94,7 @@ describe("news tools", () => {
 				url: "https://api.financialdatasets.ai/news/",
 			});
 
-			const tool = getTool(registeredTools, "get_news");
+			const tool = getTool(mockPi.tools, "get_news");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
 			expect(JSON.parse(getResultText(result))).toEqual([]);

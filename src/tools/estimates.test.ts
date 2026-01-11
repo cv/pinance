@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerEstimatesTools } from "./estimates.js";
-import { getResultText, getTool, type MockTool } from "./test-utils.js";
+import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -11,16 +11,10 @@ import { callApi } from "../api.js";
 const mockCallApi = vi.mocked(callApi);
 
 describe("estimates tools", () => {
-	let registeredTools: Map<string, MockTool>;
-	let mockPi: { registerTool: ReturnType<typeof vi.fn> };
+	let mockPi: MockPi;
 
 	beforeEach(() => {
-		registeredTools = new Map();
-		mockPi = {
-			registerTool: vi.fn((tool) => {
-				registeredTools.set(tool.name, tool);
-			}),
-		};
+		mockPi = createMockPi();
 		registerEstimatesTools(mockPi as never);
 	});
 
@@ -30,7 +24,7 @@ describe("estimates tools", () => {
 
 	describe("registerEstimatesTools", () => {
 		it("should register get_analyst_estimates tool", () => {
-			expect(registeredTools.has("get_analyst_estimates")).toBe(true);
+			expect(mockPi.tools.has("get_analyst_estimates")).toBe(true);
 		});
 	});
 
@@ -45,7 +39,7 @@ describe("estimates tools", () => {
 				url: "https://api.financialdatasets.ai/analyst-estimates/",
 			});
 
-			const tool = getTool(registeredTools, "get_analyst_estimates");
+			const tool = getTool(mockPi.tools, "get_analyst_estimates");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "NVDA", period: "quarterly" },
@@ -69,7 +63,7 @@ describe("estimates tools", () => {
 				url: "https://api.financialdatasets.ai/analyst-estimates/",
 			});
 
-			const tool = getTool(registeredTools, "get_analyst_estimates");
+			const tool = getTool(mockPi.tools, "get_analyst_estimates");
 			await tool.execute("test-id", { ticker: "AAPL" }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -85,7 +79,7 @@ describe("estimates tools", () => {
 				url: "https://api.financialdatasets.ai/analyst-estimates/",
 			});
 
-			const tool = getTool(registeredTools, "get_analyst_estimates");
+			const tool = getTool(mockPi.tools, "get_analyst_estimates");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
 			expect(JSON.parse(getResultText(result))).toEqual([]);

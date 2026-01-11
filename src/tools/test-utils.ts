@@ -1,4 +1,4 @@
-import type { vi } from "vitest";
+import { vi } from "vitest";
 
 export interface ToolResult {
 	content: Array<{ type: string; text: string }>;
@@ -14,6 +14,25 @@ export interface MockTool {
 		ctx: Record<string, unknown>,
 		signal: AbortSignal | undefined,
 	) => Promise<ToolResult>;
+}
+
+export interface MockPi {
+	registerTool: ReturnType<typeof vi.fn>;
+	tools: Map<string, MockTool>;
+}
+
+/**
+ * Creates a mock ExtensionAPI for testing tool registration.
+ * Tools are stored in the returned `tools` map for easy access.
+ */
+export function createMockPi(): MockPi {
+	const tools = new Map<string, MockTool>();
+	return {
+		registerTool: vi.fn((tool: MockTool) => {
+			tools.set(tool.name, tool);
+		}),
+		tools,
+	};
 }
 
 export function getTool(tools: Map<string, MockTool>, name: string): MockTool {

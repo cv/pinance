@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerInsiderTradesTools } from "./insider-trades.js";
-import { getResultText, getTool, type MockTool } from "./test-utils.js";
+import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -11,16 +11,10 @@ import { callApi } from "../api.js";
 const mockCallApi = vi.mocked(callApi);
 
 describe("insider-trades tools", () => {
-	let registeredTools: Map<string, MockTool>;
-	let mockPi: { registerTool: ReturnType<typeof vi.fn> };
+	let mockPi: MockPi;
 
 	beforeEach(() => {
-		registeredTools = new Map();
-		mockPi = {
-			registerTool: vi.fn((tool) => {
-				registeredTools.set(tool.name, tool);
-			}),
-		};
+		mockPi = createMockPi();
 		registerInsiderTradesTools(mockPi as never);
 	});
 
@@ -30,7 +24,7 @@ describe("insider-trades tools", () => {
 
 	describe("registerInsiderTradesTools", () => {
 		it("should register get_insider_trades tool", () => {
-			expect(registeredTools.has("get_insider_trades")).toBe(true);
+			expect(mockPi.tools.has("get_insider_trades")).toBe(true);
 		});
 	});
 
@@ -45,7 +39,7 @@ describe("insider-trades tools", () => {
 				url: "https://api.financialdatasets.ai/insider-trades/",
 			});
 
-			const tool = getTool(registeredTools, "get_insider_trades");
+			const tool = getTool(mockPi.tools, "get_insider_trades");
 			const result = await tool.execute(
 				"test-id",
 				{
@@ -83,7 +77,7 @@ describe("insider-trades tools", () => {
 				url: "https://api.financialdatasets.ai/insider-trades/",
 			});
 
-			const tool = getTool(registeredTools, "get_insider_trades");
+			const tool = getTool(mockPi.tools, "get_insider_trades");
 			await tool.execute("test-id", { ticker: "msft" }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -99,7 +93,7 @@ describe("insider-trades tools", () => {
 				url: "https://api.financialdatasets.ai/insider-trades/",
 			});
 
-			const tool = getTool(registeredTools, "get_insider_trades");
+			const tool = getTool(mockPi.tools, "get_insider_trades");
 			await tool.execute("test-id", { ticker: "TSLA" }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -115,7 +109,7 @@ describe("insider-trades tools", () => {
 				url: "https://api.financialdatasets.ai/insider-trades/",
 			});
 
-			const tool = getTool(registeredTools, "get_insider_trades");
+			const tool = getTool(mockPi.tools, "get_insider_trades");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
 			expect(JSON.parse(getResultText(result))).toEqual([]);

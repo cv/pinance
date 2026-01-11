@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerCryptoTools } from "./crypto.js";
-import { getResultText, getTool, type MockTool } from "./test-utils.js";
+import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -11,16 +11,10 @@ import { callApi } from "../api.js";
 const mockCallApi = vi.mocked(callApi);
 
 describe("crypto tools", () => {
-	let registeredTools: Map<string, MockTool>;
-	let mockPi: { registerTool: ReturnType<typeof vi.fn> };
+	let mockPi: MockPi;
 
 	beforeEach(() => {
-		registeredTools = new Map();
-		mockPi = {
-			registerTool: vi.fn((tool) => {
-				registeredTools.set(tool.name, tool);
-			}),
-		};
+		mockPi = createMockPi();
 		registerCryptoTools(mockPi as never);
 	});
 
@@ -30,9 +24,9 @@ describe("crypto tools", () => {
 
 	describe("registerCryptoTools", () => {
 		it("should register all crypto tools", () => {
-			expect(registeredTools.has("get_crypto_price_snapshot")).toBe(true);
-			expect(registeredTools.has("get_crypto_prices")).toBe(true);
-			expect(registeredTools.has("get_available_crypto_tickers")).toBe(true);
+			expect(mockPi.tools.has("get_crypto_price_snapshot")).toBe(true);
+			expect(mockPi.tools.has("get_crypto_prices")).toBe(true);
+			expect(mockPi.tools.has("get_available_crypto_tickers")).toBe(true);
 		});
 	});
 
@@ -44,7 +38,7 @@ describe("crypto tools", () => {
 				url: "https://api.financialdatasets.ai/crypto/prices/snapshot/?ticker=BTC-USD",
 			});
 
-			const tool = getTool(registeredTools, "get_crypto_price_snapshot");
+			const tool = getTool(mockPi.tools, "get_crypto_price_snapshot");
 			const result = await tool.execute("test-id", { ticker: "BTC-USD" }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -61,7 +55,7 @@ describe("crypto tools", () => {
 				url: "https://api.financialdatasets.ai/crypto/prices/snapshot/",
 			});
 
-			const tool = getTool(registeredTools, "get_crypto_price_snapshot");
+			const tool = getTool(mockPi.tools, "get_crypto_price_snapshot");
 			const result = await tool.execute("test-id", { ticker: "BTC-USD" }, vi.fn(), {}, undefined);
 
 			expect(JSON.parse(getResultText(result))).toEqual({});
@@ -79,7 +73,7 @@ describe("crypto tools", () => {
 				url: "https://api.financialdatasets.ai/crypto/prices/",
 			});
 
-			const tool = getTool(registeredTools, "get_crypto_prices");
+			const tool = getTool(mockPi.tools, "get_crypto_prices");
 			const result = await tool.execute(
 				"test-id",
 				{
@@ -115,7 +109,7 @@ describe("crypto tools", () => {
 				url: "https://api.financialdatasets.ai/crypto/prices/",
 			});
 
-			const tool = getTool(registeredTools, "get_crypto_prices");
+			const tool = getTool(mockPi.tools, "get_crypto_prices");
 			await tool.execute(
 				"test-id",
 				{
@@ -147,7 +141,7 @@ describe("crypto tools", () => {
 				url: "https://api.financialdatasets.ai/crypto/prices/",
 			});
 
-			const tool = getTool(registeredTools, "get_crypto_prices");
+			const tool = getTool(mockPi.tools, "get_crypto_prices");
 			const result = await tool.execute(
 				"test-id",
 				{
@@ -173,7 +167,7 @@ describe("crypto tools", () => {
 				url: "https://api.financialdatasets.ai/crypto/prices/tickers/",
 			});
 
-			const tool = getTool(registeredTools, "get_available_crypto_tickers");
+			const tool = getTool(mockPi.tools, "get_available_crypto_tickers");
 			const result = await tool.execute("test-id", {}, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith("/crypto/prices/tickers/", {}, undefined);
@@ -187,7 +181,7 @@ describe("crypto tools", () => {
 				url: "https://api.financialdatasets.ai/crypto/prices/tickers/",
 			});
 
-			const tool = getTool(registeredTools, "get_available_crypto_tickers");
+			const tool = getTool(mockPi.tools, "get_available_crypto_tickers");
 			const result = await tool.execute("test-id", {}, vi.fn(), {}, undefined);
 
 			expect(JSON.parse(getResultText(result))).toEqual([]);

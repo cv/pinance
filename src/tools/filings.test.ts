@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerFilingsTools } from "./filings.js";
-import { getResultText, getTool, type MockTool } from "./test-utils.js";
+import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -11,16 +11,10 @@ import { callApi } from "../api.js";
 const mockCallApi = vi.mocked(callApi);
 
 describe("filings tools", () => {
-	let registeredTools: Map<string, MockTool>;
-	let mockPi: { registerTool: ReturnType<typeof vi.fn> };
+	let mockPi: MockPi;
 
 	beforeEach(() => {
-		registeredTools = new Map();
-		mockPi = {
-			registerTool: vi.fn((tool) => {
-				registeredTools.set(tool.name, tool);
-			}),
-		};
+		mockPi = createMockPi();
 		registerFilingsTools(mockPi as never);
 	});
 
@@ -30,10 +24,10 @@ describe("filings tools", () => {
 
 	describe("registerFilingsTools", () => {
 		it("should register all filings tools", () => {
-			expect(registeredTools.has("get_filings")).toBe(true);
-			expect(registeredTools.has("get_10K_filing_items")).toBe(true);
-			expect(registeredTools.has("get_10Q_filing_items")).toBe(true);
-			expect(registeredTools.has("get_8K_filing_items")).toBe(true);
+			expect(mockPi.tools.has("get_filings")).toBe(true);
+			expect(mockPi.tools.has("get_10K_filing_items")).toBe(true);
+			expect(mockPi.tools.has("get_10Q_filing_items")).toBe(true);
+			expect(mockPi.tools.has("get_8K_filing_items")).toBe(true);
 		});
 	});
 
@@ -48,7 +42,7 @@ describe("filings tools", () => {
 				url: "https://api.financialdatasets.ai/filings/",
 			});
 
-			const tool = getTool(registeredTools, "get_filings");
+			const tool = getTool(mockPi.tools, "get_filings");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "AAPL", filing_type: "10-K", limit: 5 },
@@ -72,7 +66,7 @@ describe("filings tools", () => {
 				url: "https://api.financialdatasets.ai/filings/",
 			});
 
-			const tool = getTool(registeredTools, "get_filings");
+			const tool = getTool(mockPi.tools, "get_filings");
 			await tool.execute("test-id", { ticker: "AAPL" }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -88,7 +82,7 @@ describe("filings tools", () => {
 				url: "https://api.financialdatasets.ai/filings/",
 			});
 
-			const tool = getTool(registeredTools, "get_filings");
+			const tool = getTool(mockPi.tools, "get_filings");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
 			expect(JSON.parse(getResultText(result))).toEqual([]);
@@ -104,7 +98,7 @@ describe("filings tools", () => {
 				url: "https://api.financialdatasets.ai/filings/items/",
 			});
 
-			const tool = getTool(registeredTools, "get_10K_filing_items");
+			const tool = getTool(mockPi.tools, "get_10K_filing_items");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "aapl", year: 2023, item: ["Item-1", "Item-1A"] },
@@ -133,7 +127,7 @@ describe("filings tools", () => {
 				url: "https://api.financialdatasets.ai/filings/items/",
 			});
 
-			const tool = getTool(registeredTools, "get_10K_filing_items");
+			const tool = getTool(mockPi.tools, "get_10K_filing_items");
 			await tool.execute("test-id", { ticker: "MSFT", year: 2022 }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -157,7 +151,7 @@ describe("filings tools", () => {
 				url: "https://api.financialdatasets.ai/filings/items/",
 			});
 
-			const tool = getTool(registeredTools, "get_10Q_filing_items");
+			const tool = getTool(mockPi.tools, "get_10Q_filing_items");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "googl", year: 2024, quarter: 1, item: ["Item-1"] },
@@ -190,7 +184,7 @@ describe("filings tools", () => {
 				url: "https://api.financialdatasets.ai/filings/items/",
 			});
 
-			const tool = getTool(registeredTools, "get_8K_filing_items");
+			const tool = getTool(mockPi.tools, "get_8K_filing_items");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "tsla", accession_number: "0001628280-24-012345" },

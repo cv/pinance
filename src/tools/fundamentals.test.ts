@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerFundamentalsTools } from "./fundamentals.js";
-import { getResultText, getTool, type MockTool } from "./test-utils.js";
+import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -11,16 +11,10 @@ import { callApi } from "../api.js";
 const mockCallApi = vi.mocked(callApi);
 
 describe("fundamentals tools", () => {
-	let registeredTools: Map<string, MockTool>;
-	let mockPi: { registerTool: ReturnType<typeof vi.fn> };
+	let mockPi: MockPi;
 
 	beforeEach(() => {
-		registeredTools = new Map();
-		mockPi = {
-			registerTool: vi.fn((tool) => {
-				registeredTools.set(tool.name, tool);
-			}),
-		};
+		mockPi = createMockPi();
 		registerFundamentalsTools(mockPi as never);
 	});
 
@@ -30,10 +24,10 @@ describe("fundamentals tools", () => {
 
 	describe("registerFundamentalsTools", () => {
 		it("should register all fundamentals tools", () => {
-			expect(registeredTools.has("get_income_statements")).toBe(true);
-			expect(registeredTools.has("get_balance_sheets")).toBe(true);
-			expect(registeredTools.has("get_cash_flow_statements")).toBe(true);
-			expect(registeredTools.has("get_all_financial_statements")).toBe(true);
+			expect(mockPi.tools.has("get_income_statements")).toBe(true);
+			expect(mockPi.tools.has("get_balance_sheets")).toBe(true);
+			expect(mockPi.tools.has("get_cash_flow_statements")).toBe(true);
+			expect(mockPi.tools.has("get_all_financial_statements")).toBe(true);
 		});
 	});
 
@@ -45,7 +39,7 @@ describe("fundamentals tools", () => {
 				url: "https://api.financialdatasets.ai/financials/income-statements/",
 			});
 
-			const tool = getTool(registeredTools, "get_income_statements");
+			const tool = getTool(mockPi.tools, "get_income_statements");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "AAPL", period: "annual", limit: 5 },
@@ -76,7 +70,7 @@ describe("fundamentals tools", () => {
 				url: "https://api.financialdatasets.ai/financials/income-statements/",
 			});
 
-			const tool = getTool(registeredTools, "get_income_statements");
+			const tool = getTool(mockPi.tools, "get_income_statements");
 			await tool.execute(
 				"test-id",
 				{ ticker: "AAPL", period: "quarterly" },
@@ -98,7 +92,7 @@ describe("fundamentals tools", () => {
 				url: "https://api.financialdatasets.ai/financials/income-statements/",
 			});
 
-			const tool = getTool(registeredTools, "get_income_statements");
+			const tool = getTool(mockPi.tools, "get_income_statements");
 			await tool.execute(
 				"test-id",
 				{
@@ -128,7 +122,7 @@ describe("fundamentals tools", () => {
 				url: "https://api.financialdatasets.ai/financials/income-statements/",
 			});
 
-			const tool = getTool(registeredTools, "get_income_statements");
+			const tool = getTool(mockPi.tools, "get_income_statements");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "XYZ", period: "annual" },
@@ -149,7 +143,7 @@ describe("fundamentals tools", () => {
 				url: "https://api.financialdatasets.ai/financials/balance-sheets/",
 			});
 
-			const tool = getTool(registeredTools, "get_balance_sheets");
+			const tool = getTool(mockPi.tools, "get_balance_sheets");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "MSFT", period: "quarterly" },
@@ -175,7 +169,7 @@ describe("fundamentals tools", () => {
 				url: "https://api.financialdatasets.ai/financials/cash-flow-statements/",
 			});
 
-			const tool = getTool(registeredTools, "get_cash_flow_statements");
+			const tool = getTool(mockPi.tools, "get_cash_flow_statements");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "GOOGL", period: "ttm" },
@@ -205,7 +199,7 @@ describe("fundamentals tools", () => {
 				url: "https://api.financialdatasets.ai/financials/",
 			});
 
-			const tool = getTool(registeredTools, "get_all_financial_statements");
+			const tool = getTool(mockPi.tools, "get_all_financial_statements");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "TSLA", period: "annual" },

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerSegmentsTools } from "./segments.js";
-import { getResultText, getTool, type MockTool } from "./test-utils.js";
+import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -11,16 +11,10 @@ import { callApi } from "../api.js";
 const mockCallApi = vi.mocked(callApi);
 
 describe("segments tools", () => {
-	let registeredTools: Map<string, MockTool>;
-	let mockPi: { registerTool: ReturnType<typeof vi.fn> };
+	let mockPi: MockPi;
 
 	beforeEach(() => {
-		registeredTools = new Map();
-		mockPi = {
-			registerTool: vi.fn((tool) => {
-				registeredTools.set(tool.name, tool);
-			}),
-		};
+		mockPi = createMockPi();
 		registerSegmentsTools(mockPi as never);
 	});
 
@@ -30,7 +24,7 @@ describe("segments tools", () => {
 
 	describe("registerSegmentsTools", () => {
 		it("should register get_segmented_revenues tool", () => {
-			expect(registeredTools.has("get_segmented_revenues")).toBe(true);
+			expect(mockPi.tools.has("get_segmented_revenues")).toBe(true);
 		});
 	});
 
@@ -46,7 +40,7 @@ describe("segments tools", () => {
 				url: "https://api.financialdatasets.ai/financials/segmented-revenues/",
 			});
 
-			const tool = getTool(registeredTools, "get_segmented_revenues");
+			const tool = getTool(mockPi.tools, "get_segmented_revenues");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "AAPL", period: "annual", limit: 5 },
@@ -69,7 +63,7 @@ describe("segments tools", () => {
 				url: "https://api.financialdatasets.ai/financials/segmented-revenues/",
 			});
 
-			const tool = getTool(registeredTools, "get_segmented_revenues");
+			const tool = getTool(mockPi.tools, "get_segmented_revenues");
 			await tool.execute(
 				"test-id",
 				{ ticker: "MSFT", period: "quarterly" },
@@ -91,7 +85,7 @@ describe("segments tools", () => {
 				url: "https://api.financialdatasets.ai/financials/segmented-revenues/",
 			});
 
-			const tool = getTool(registeredTools, "get_segmented_revenues");
+			const tool = getTool(mockPi.tools, "get_segmented_revenues");
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "XYZ", period: "annual" },

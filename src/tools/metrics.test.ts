@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerMetricsTools } from "./metrics.js";
-import { getResultText, getTool, type MockTool } from "./test-utils.js";
+import { createMockPi, getResultText, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
 	callApi: vi.fn(),
@@ -11,16 +11,10 @@ import { callApi } from "../api.js";
 const mockCallApi = vi.mocked(callApi);
 
 describe("metrics tools", () => {
-	let registeredTools: Map<string, MockTool>;
-	let mockPi: { registerTool: ReturnType<typeof vi.fn> };
+	let mockPi: MockPi;
 
 	beforeEach(() => {
-		registeredTools = new Map();
-		mockPi = {
-			registerTool: vi.fn((tool) => {
-				registeredTools.set(tool.name, tool);
-			}),
-		};
+		mockPi = createMockPi();
 		registerMetricsTools(mockPi as never);
 	});
 
@@ -30,8 +24,8 @@ describe("metrics tools", () => {
 
 	describe("registerMetricsTools", () => {
 		it("should register all metrics tools", () => {
-			expect(registeredTools.has("get_financial_metrics_snapshot")).toBe(true);
-			expect(registeredTools.has("get_financial_metrics")).toBe(true);
+			expect(mockPi.tools.has("get_financial_metrics_snapshot")).toBe(true);
+			expect(mockPi.tools.has("get_financial_metrics")).toBe(true);
 		});
 	});
 
@@ -43,7 +37,7 @@ describe("metrics tools", () => {
 				url: "https://api.financialdatasets.ai/financial-metrics/snapshot/",
 			});
 
-			const tool = getTool(registeredTools, "get_financial_metrics_snapshot");
+			const tool = getTool(mockPi.tools, "get_financial_metrics_snapshot");
 			const result = await tool.execute("test-id", { ticker: "AAPL" }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -60,7 +54,7 @@ describe("metrics tools", () => {
 				url: "https://api.financialdatasets.ai/financial-metrics/snapshot/",
 			});
 
-			const tool = getTool(registeredTools, "get_financial_metrics_snapshot");
+			const tool = getTool(mockPi.tools, "get_financial_metrics_snapshot");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
 			expect(JSON.parse(getResultText(result))).toEqual({});
@@ -78,7 +72,7 @@ describe("metrics tools", () => {
 				url: "https://api.financialdatasets.ai/financial-metrics/",
 			});
 
-			const tool = getTool(registeredTools, "get_financial_metrics");
+			const tool = getTool(mockPi.tools, "get_financial_metrics");
 			const result = await tool.execute(
 				"test-id",
 				{
@@ -116,7 +110,7 @@ describe("metrics tools", () => {
 				url: "https://api.financialdatasets.ai/financial-metrics/",
 			});
 
-			const tool = getTool(registeredTools, "get_financial_metrics");
+			const tool = getTool(mockPi.tools, "get_financial_metrics");
 			await tool.execute("test-id", { ticker: "MSFT" }, vi.fn(), {}, undefined);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -136,7 +130,7 @@ describe("metrics tools", () => {
 				url: "https://api.financialdatasets.ai/financial-metrics/",
 			});
 
-			const tool = getTool(registeredTools, "get_financial_metrics");
+			const tool = getTool(mockPi.tools, "get_financial_metrics");
 			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
 
 			expect(JSON.parse(getResultText(result))).toEqual([]);
