@@ -1,7 +1,23 @@
-import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { type ArrayResponse, callApi, type SnapshotResponse } from "../api.js";
+import type { ArrayResponse, SnapshotResponse } from "../api.js";
 import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
+import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
+
+interface MetricsSnapshotParams {
+	ticker: string;
+}
+
+interface MetricsParams {
+	ticker: string;
+	period?: "annual" | "quarterly" | "ttm";
+	limit?: number;
+	report_period?: string;
+	report_period_gt?: string;
+	report_period_gte?: string;
+	report_period_lt?: string;
+	report_period_lte?: string;
+}
 
 const metricsSnapshotParams = Type.Object({
 	ticker: TickerParam,
@@ -25,66 +41,34 @@ const metricsParams = Type.Object({
 });
 
 export function registerMetricsTools(pi: ExtensionAPI): void {
-	pi.registerTool({
+	registerSimpleTool<MetricsSnapshotParams, SnapshotResponse>(pi, {
 		name: "get_financial_metrics_snapshot",
 		label: "Get Financial Metrics Snapshot",
 		description:
 			"Fetches current financial metrics including market cap, P/E ratio, and dividend yield. Useful for a quick overview of financial health.",
 		parameters: metricsSnapshotParams,
-		execute: async (
-			_toolCallId,
-			params,
-			_onUpdate,
-			_ctx,
-			signal,
-		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<SnapshotResponse>(
-				"/financial-metrics/snapshot/",
-				{ ticker: params.ticker },
-				signal,
-			);
-
-			return {
-				content: [{ type: "text", text: JSON.stringify(data.snapshot ?? {}, null, 2) }],
-				details: { url },
-			};
-		},
+		endpoint: "/financial-metrics/snapshot/",
+		buildParams: (params) => ({ ticker: params.ticker }),
+		extractData: (response) => response.snapshot ?? {},
 	});
 
-	pi.registerTool({
+	registerArrayTool<MetricsParams, ArrayResponse<"financial_metrics">>(pi, {
 		name: "get_financial_metrics",
 		label: "Get Financial Metrics",
 		description:
 			"Retrieves historical financial metrics like P/E ratio, revenue per share, and enterprise value. Useful for trend analysis.",
 		parameters: metricsParams,
-		execute: async (
-			_toolCallId,
-			params,
-			_onUpdate,
-			_ctx,
-			signal,
-		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<ArrayResponse<"financial_metrics">>(
-				"/financial-metrics/",
-				{
-					ticker: params.ticker,
-					period: params.period ?? "ttm",
-					limit: params.limit ?? 4,
-					report_period: params.report_period,
-					report_period_gt: params.report_period_gt,
-					report_period_gte: params.report_period_gte,
-					report_period_lt: params.report_period_lt,
-					report_period_lte: params.report_period_lte,
-				},
-				signal,
-			);
-
-			const metrics = data.financial_metrics ?? [];
-
-			return {
-				content: [{ type: "text", text: JSON.stringify(metrics, null, 2) }],
-				details: { url, count: metrics.length },
-			};
-		},
+		endpoint: "/financial-metrics/",
+		buildParams: (params) => ({
+			ticker: params.ticker,
+			period: params.period ?? "ttm",
+			limit: params.limit ?? 4,
+			report_period: params.report_period,
+			report_period_gt: params.report_period_gt,
+			report_period_gte: params.report_period_gte,
+			report_period_lt: params.report_period_lt,
+			report_period_lte: params.report_period_lte,
+		}),
+		extractData: (response) => response.financial_metrics ?? [],
 	});
 }
