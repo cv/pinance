@@ -2,7 +2,7 @@
 
 A [pi](https://github.com/badlogic/pi-mono) extension for financial data tools. Provides access to stock prices, crypto prices, SEC filings, financial statements, and more.
 
-This project is a TypeScript port of [virattt/dexter](https://github.com/virattt/dexter), a Python-based financial AI agent.
+Heavily inspired by [virattt/dexter](https://github.com/virattt/dexter).
 
 ## Features
 
