@@ -1,11 +1,8 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
+import type { ArrayResponse } from "../api.js";
 import { OptionalDateRangeParams, TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
-
-interface NewsResponse {
-	news: Record<string, unknown>[];
-}
 
 interface NewsParams {
 	ticker: string;
@@ -26,7 +23,7 @@ const newsParams = Type.Object({
 });
 
 export function registerNewsTools(pi: ExtensionAPI): void {
-	registerArrayTool<NewsParams, NewsResponse>(pi, {
+	registerArrayTool<NewsParams, ArrayResponse<"news">>(pi, {
 		name: "get_news",
 		label: "Get News",
 		description:

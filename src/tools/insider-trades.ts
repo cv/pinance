@@ -1,11 +1,7 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { callApi } from "../api.js";
+import { type ArrayResponse, callApi } from "../api.js";
 import { FilingDateFilterParams, TickerParam } from "../schemas.js";
-
-interface InsiderTradesResponse {
-	insider_trades: Record<string, unknown>[];
-}
 
 const insiderTradesParams = Type.Object({
 	ticker: TickerParam,
@@ -32,7 +28,7 @@ export function registerInsiderTradesTools(pi: ExtensionAPI): void {
 			_ctx,
 			signal,
 		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<InsiderTradesResponse>(
+			const { data, url } = await callApi<ArrayResponse<"insider_trades">>(
 				"/insider-trades/",
 				{
 					ticker: params.ticker,

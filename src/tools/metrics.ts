@@ -1,15 +1,7 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { callApi } from "../api.js";
+import { type ArrayResponse, callApi, type SnapshotResponse } from "../api.js";
 import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
-
-interface MetricsSnapshotResponse {
-	snapshot: Record<string, unknown>;
-}
-
-interface MetricsResponse {
-	financial_metrics: Record<string, unknown>[];
-}
 
 const metricsSnapshotParams = Type.Object({
 	ticker: TickerParam,
@@ -46,7 +38,7 @@ export function registerMetricsTools(pi: ExtensionAPI): void {
 			_ctx,
 			signal,
 		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<MetricsSnapshotResponse>(
+			const { data, url } = await callApi<SnapshotResponse>(
 				"/financial-metrics/snapshot/",
 				{ ticker: params.ticker },
 				signal,
@@ -72,7 +64,7 @@ export function registerMetricsTools(pi: ExtensionAPI): void {
 			_ctx,
 			signal,
 		): Promise<AgentToolResult<unknown>> => {
-			const { data, url } = await callApi<MetricsResponse>(
+			const { data, url } = await callApi<ArrayResponse<"financial_metrics">>(
 				"/financial-metrics/",
 				{
 					ticker: params.ticker,

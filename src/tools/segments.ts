@@ -1,11 +1,8 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
+import type { ObjectResponse } from "../api.js";
 import { PeriodTypeNoTtm, TickerParam } from "../schemas.js";
 import { registerSimpleTool } from "../tool-helpers.js";
-
-interface SegmentedRevenuesResponse {
-	segmented_revenues: Record<string, unknown>;
-}
 
 interface SegmentedRevenuesParams {
 	ticker: string;
@@ -25,7 +22,7 @@ const segmentedRevenuesParams = Type.Object({
 });
 
 export function registerSegmentsTools(pi: ExtensionAPI): void {
-	registerSimpleTool<SegmentedRevenuesParams, SegmentedRevenuesResponse>(pi, {
+	registerSimpleTool<SegmentedRevenuesParams, ObjectResponse<"segmented_revenues">>(pi, {
 		name: "get_segmented_revenues",
 		label: "Get Segmented Revenues",
 		description:

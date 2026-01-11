@@ -1,17 +1,10 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
+import type { ArrayResponse, SnapshotResponse } from "../api.js";
 import { CryptoTickerParam, DateRangeParams, PriceIntervalParams } from "../schemas.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
 
-interface CryptoSnapshotResponse {
-	snapshot: Record<string, unknown>;
-}
-
-interface CryptoPricesResponse {
-	prices: Record<string, unknown>[];
-}
-
-interface CryptoTickersResponse {
+interface TickersResponse {
 	tickers: string[];
 }
 
@@ -38,7 +31,7 @@ const cryptoPricesParams = Type.Object({
 });
 
 export function registerCryptoTools(pi: ExtensionAPI): void {
-	registerSimpleTool<CryptoSnapshotParams, CryptoSnapshotResponse>(pi, {
+	registerSimpleTool<CryptoSnapshotParams, SnapshotResponse>(pi, {
 		name: "get_crypto_price_snapshot",
 		label: "Get Crypto Price Snapshot",
 		description:
@@ -49,7 +42,7 @@ export function registerCryptoTools(pi: ExtensionAPI): void {
 		extractData: (response) => response.snapshot ?? {},
 	});
 
-	registerArrayTool<CryptoPricesParams, CryptoPricesResponse>(pi, {
+	registerArrayTool<CryptoPricesParams, ArrayResponse<"prices">>(pi, {
 		name: "get_crypto_prices",
 		label: "Get Crypto Prices",
 		description:
@@ -66,7 +59,7 @@ export function registerCryptoTools(pi: ExtensionAPI): void {
 		extractData: (response) => response.prices ?? [],
 	});
 
-	registerArrayTool<Record<string, never>, CryptoTickersResponse>(pi, {
+	registerArrayTool<Record<string, never>, TickersResponse>(pi, {
 		name: "get_available_crypto_tickers",
 		label: "Get Available Crypto Tickers",
 		description: "Retrieves the list of available cryptocurrency tickers.",

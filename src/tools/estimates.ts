@@ -1,11 +1,8 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
+import type { ArrayResponse } from "../api.js";
 import { PeriodTypeNoTtm, TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
-
-interface EstimatesResponse {
-	analyst_estimates: Record<string, unknown>[];
-}
 
 interface EstimatesParams {
 	ticker: string;
@@ -18,7 +15,7 @@ const estimatesParams = Type.Object({
 });
 
 export function registerEstimatesTools(pi: ExtensionAPI): void {
-	registerArrayTool<EstimatesParams, EstimatesResponse>(pi, {
+	registerArrayTool<EstimatesParams, ArrayResponse<"analyst_estimates">>(pi, {
 		name: "get_analyst_estimates",
 		label: "Get Analyst Estimates",
 		description:

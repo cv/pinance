@@ -5,6 +5,11 @@ export interface ApiResponse<T> {
 	url: string;
 }
 
+// Generic response types for common API patterns
+export type SnapshotResponse = { snapshot: Record<string, unknown> };
+export type ArrayResponse<K extends string> = { [P in K]: Record<string, unknown>[] };
+export type ObjectResponse<K extends string> = { [P in K]: Record<string, unknown> };
+
 export async function callApi<T>(
 	endpoint: string,
 	params: Record<string, string | number | string[] | undefined>,
