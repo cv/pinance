@@ -1,7 +1,7 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
-import { TickerParam } from "../schemas.js";
+import { FilingDateFilterParams, TickerParam } from "../schemas.js";
 
 interface InsiderTradesResponse {
 	insider_trades: Record<string, unknown>[];
@@ -15,31 +15,7 @@ const insiderTradesParams = Type.Object({
 			default: 100,
 		}),
 	),
-	filing_date: Type.Optional(
-		Type.String({
-			description: "Exact filing date to filter by (YYYY-MM-DD)",
-		}),
-	),
-	filing_date_gt: Type.Optional(
-		Type.String({
-			description: "Filter for trades filed after this date (YYYY-MM-DD)",
-		}),
-	),
-	filing_date_gte: Type.Optional(
-		Type.String({
-			description: "Filter for trades filed on or after this date (YYYY-MM-DD)",
-		}),
-	),
-	filing_date_lt: Type.Optional(
-		Type.String({
-			description: "Filter for trades filed before this date (YYYY-MM-DD)",
-		}),
-	),
-	filing_date_lte: Type.Optional(
-		Type.String({
-			description: "Filter for trades filed on or before this date (YYYY-MM-DD)",
-		}),
-	),
+	...FilingDateFilterParams,
 });
 
 export function registerInsiderTradesTools(pi: ExtensionAPI): void {

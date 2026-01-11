@@ -1,7 +1,7 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
-import { PeriodType, TickerParam } from "../schemas.js";
+import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
 
 interface IncomeStatementsResponse {
 	income_statements: Record<string, unknown>;
@@ -28,26 +28,7 @@ const financialStatementsParams = Type.Object({
 			default: 10,
 		}),
 	),
-	report_period_gt: Type.Optional(
-		Type.String({
-			description: "Filter for periods after this date (YYYY-MM-DD)",
-		}),
-	),
-	report_period_gte: Type.Optional(
-		Type.String({
-			description: "Filter for periods on or after this date (YYYY-MM-DD)",
-		}),
-	),
-	report_period_lt: Type.Optional(
-		Type.String({
-			description: "Filter for periods before this date (YYYY-MM-DD)",
-		}),
-	),
-	report_period_lte: Type.Optional(
-		Type.String({
-			description: "Filter for periods on or before this date (YYYY-MM-DD)",
-		}),
-	),
+	...ReportPeriodFilterParams,
 });
 
 type FinancialStatementsParams = typeof financialStatementsParams.static;

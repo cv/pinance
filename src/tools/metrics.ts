@@ -1,7 +1,7 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import { callApi } from "../api.js";
-import { TickerParam } from "../schemas.js";
+import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
 
 interface MetricsSnapshotResponse {
 	snapshot: Record<string, unknown>;
@@ -17,12 +17,7 @@ const metricsSnapshotParams = Type.Object({
 
 const metricsParams = Type.Object({
 	ticker: TickerParam,
-	period: Type.Optional(
-		Type.Union([Type.Literal("annual"), Type.Literal("quarterly"), Type.Literal("ttm")], {
-			description: "Reporting period (default: 'ttm')",
-			default: "ttm",
-		}),
-	),
+	period: Type.Optional(PeriodType),
 	limit: Type.Optional(
 		Type.Number({
 			description: "Number of periods to retrieve (default: 4)",
@@ -34,26 +29,7 @@ const metricsParams = Type.Object({
 			description: "Filter for exact report period date (YYYY-MM-DD)",
 		}),
 	),
-	report_period_gt: Type.Optional(
-		Type.String({
-			description: "Filter for periods after this date (YYYY-MM-DD)",
-		}),
-	),
-	report_period_gte: Type.Optional(
-		Type.String({
-			description: "Filter for periods on or after this date (YYYY-MM-DD)",
-		}),
-	),
-	report_period_lt: Type.Optional(
-		Type.String({
-			description: "Filter for periods before this date (YYYY-MM-DD)",
-		}),
-	),
-	report_period_lte: Type.Optional(
-		Type.String({
-			description: "Filter for periods on or before this date (YYYY-MM-DD)",
-		}),
-	),
+	...ReportPeriodFilterParams,
 });
 
 export function registerMetricsTools(pi: ExtensionAPI): void {
