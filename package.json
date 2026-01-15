@@ -30,13 +30,13 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.11",
-		"@sinclair/typebox": "^0.34.14",
-		"@types/node": "^25.0.6",
-		"@vitest/coverage-v8": "^4.0.16",
+		"@sinclair/typebox": "^0.34.47",
+		"@types/node": "^25.0.9",
+		"@vitest/coverage-v8": "^4.0.17",
 		"dotenv": "^17.2.3",
 		"husky": "^9.1.7",
-		"typescript": "^5.7.3",
-		"vitest": "^4.0.16"
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.17"
 	},
 	"peerDependencies": {
 		"@mariozechner/pi-coding-agent": "*"
