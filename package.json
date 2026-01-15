@@ -1,6 +1,6 @@
 {
 	"name": "pinance",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "pi extension for financial data tools (crypto, stocks, SEC filings, etc.)",
 	"type": "module",
 	"private": true,
