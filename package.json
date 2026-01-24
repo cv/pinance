@@ -30,7 +30,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.11",
-		"@sinclair/typebox": "^0.34.47",
+		"@sinclair/typebox": "^0.34.48",
 		"@types/node": "^25.0.9",
 		"@vitest/coverage-v8": "^4.0.17",
 		"dotenv": "^17.2.3",
