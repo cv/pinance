@@ -7,9 +7,11 @@ import { registerArrayTool } from "../tool-helpers.js";
 const insiderTradesParams = Type.Object({
 	ticker: TickerParam,
 	limit: Type.Optional(
-		Type.Number({
+		Type.Integer({
 			description: "Maximum trades to return (default: 100, max: 1000)",
 			default: 100,
+			maximum: 1000,
+			minimum: 1,
 		}),
 	),
 	...FilingDateFilterParams,

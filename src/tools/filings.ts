@@ -14,17 +14,19 @@ const filingsParams = Type.Object({
 		}),
 	),
 	limit: Type.Optional(
-		Type.Number({
+		Type.Integer({
 			description: "Maximum filings to return (default: 10)",
 			default: 10,
+			minimum: 1,
 		}),
 	),
 });
 
 const filing10KItemsParams = Type.Object({
 	ticker: TickerParam,
-	year: Type.Number({
+	year: Type.Integer({
 		description: "The year of the 10-K filing (e.g., 2023)",
+		minimum: 1900,
 	}),
 	item: Type.Optional(
 		Type.Array(Type.String(), {
@@ -35,11 +37,14 @@ const filing10KItemsParams = Type.Object({
 
 const filing10QItemsParams = Type.Object({
 	ticker: TickerParam,
-	year: Type.Number({
+	year: Type.Integer({
 		description: "The year of the 10-Q filing (e.g., 2023)",
+		minimum: 1900,
 	}),
-	quarter: Type.Number({
+	quarter: Type.Integer({
 		description: "The quarter of the 10-Q filing (1, 2, 3, or 4)",
+		maximum: 4,
+		minimum: 1,
 	}),
 	item: Type.Optional(
 		Type.Array(Type.String(), {

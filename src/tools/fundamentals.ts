@@ -7,9 +7,10 @@ const financialStatementsParams = Type.Object({
 	ticker: TickerParam,
 	period: PeriodType,
 	limit: Type.Optional(
-		Type.Number({
+		Type.Integer({
 			description: "Maximum number of periods to return (default: 10)",
 			default: 10,
+			minimum: 1,
 		}),
 	),
 	...ReportPeriodFilterParams,

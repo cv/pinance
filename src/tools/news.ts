@@ -8,9 +8,11 @@ const newsParams = Type.Object({
 	ticker: TickerParam,
 	...OptionalDateRangeParams,
 	limit: Type.Optional(
-		Type.Number({
+		Type.Integer({
 			description: "Number of articles to retrieve (default: 10, max: 100)",
 			default: 10,
+			maximum: 100,
+			minimum: 1,
 		}),
 	),
 });

@@ -8,9 +8,10 @@ const metricsParams = Type.Object({
 	ticker: TickerParam,
 	period: Type.Optional(PeriodType),
 	limit: Type.Optional(
-		Type.Number({
+		Type.Integer({
 			description: "Number of periods to retrieve (default: 4)",
 			default: 4,
+			minimum: 1,
 		}),
 	),
 	report_period: Type.Optional(

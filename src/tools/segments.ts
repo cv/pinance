@@ -8,9 +8,10 @@ const segmentedRevenuesParams = Type.Object({
 	ticker: TickerParam,
 	period: PeriodTypeNoTtm,
 	limit: Type.Optional(
-		Type.Number({
+		Type.Integer({
 			description: "Number of periods to retrieve (default: 10)",
 			default: 10,
+			minimum: 1,
 		}),
 	),
 });

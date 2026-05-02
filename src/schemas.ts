@@ -128,9 +128,10 @@ export const FilingDateFilterParams = {
 export const PriceIntervalParams = {
 	interval: Type.Optional(IntervalType),
 	interval_multiplier: Type.Optional(
-		Type.Number({
+		Type.Integer({
 			description: "Multiplier for the interval (default: 1)",
 			default: 1,
+			minimum: 1,
 		}),
 	),
 } as const;
