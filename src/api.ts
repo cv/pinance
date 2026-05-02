@@ -65,17 +65,19 @@ export async function callApi<T>(
 	const url = new URL(`${BASE_URL}${endpoint}`);
 
 	for (const [key, rawValue] of Object.entries(params)) {
+		if (rawValue === undefined) {
+			continue;
+		}
+
 		// Normalize ticker to uppercase for consistent API calls
 		const value =
 			key === "ticker" && typeof rawValue === "string" ? rawValue.toUpperCase() : rawValue;
-		if (value !== undefined && value !== null) {
-			if (Array.isArray(value)) {
-				for (const v of value) {
-					url.searchParams.append(key, v);
-				}
-			} else {
-				url.searchParams.append(key, String(value));
+		if (Array.isArray(value)) {
+			for (const item of value) {
+				url.searchParams.append(key, item);
 			}
+		} else {
+			url.searchParams.append(key, String(value));
 		}
 	}
 
