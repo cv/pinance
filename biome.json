@@ -19,14 +19,24 @@
 		"enabled": true,
 		"rules": {
 			"nursery": {},
+			"complexity": {
+				"useLiteralKeys": "error"
+			},
 			"correctness": {
-				"noNodejsModules": "off"
+				"noNodejsModules": "off",
+				"noUnusedImports": "error"
 			},
 			"performance": {
 				"noBarrelFile": "off"
 			},
 			"style": {
 				"noDefaultExport": "off",
+				"noInferrableTypes": "error",
+				"noNonNullAssertion": "error",
+				"noParameterAssign": "error",
+				"noUselessElse": "error",
+				"useConst": "error",
+				"useImportType": "error",
 				"useNamingConvention": {
 					"level": "error",
 					"options": {
@@ -55,7 +65,12 @@
 						]
 					}
 				},
-				"noProcessEnv": "off"
+				"noProcessEnv": "off",
+				"useTemplate": "error"
+			},
+			"suspicious": {
+				"noConsole": "error",
+				"noExplicitAny": "error"
 			},
 			"security": {
 				"noSecrets": "off"
