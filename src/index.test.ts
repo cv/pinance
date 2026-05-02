@@ -26,13 +26,22 @@ import {
 	registerSegmentsTools,
 } from "./tools/index.js";
 
+type BeforeAgentStartHandler = (event: {
+	systemPrompt: string;
+}) => Promise<{ systemPrompt: string }>;
+
 interface MockPi {
+	handlers: Map<string, BeforeAgentStartHandler>;
 	on: ReturnType<typeof vi.fn>;
 }
 
 function createMockPi(): MockPi {
+	const handlers = new Map<string, BeforeAgentStartHandler>();
 	return {
-		on: vi.fn(),
+		handlers,
+		on: vi.fn((event: string, handler: BeforeAgentStartHandler) => {
+			handlers.set(event, handler);
+		}),
 	};
 }
 
@@ -83,5 +92,20 @@ describe("pinance extension", () => {
 		pinance(mockPi as never);
 
 		expect(mockPi.on).toHaveBeenCalledWith("before_agent_start", expect.any(Function));
+	});
+
+	it("should append financial research guidance to the system prompt", async () => {
+		const mockPi = createMockPi();
+
+		pinance(mockPi as never);
+
+		const handler = mockPi.handlers.get("before_agent_start");
+		expect(handler).toBeDefined();
+
+		const result = await handler?.({ systemPrompt: "Base prompt\n" });
+
+		expect(result?.systemPrompt).toContain("Base prompt");
+		expect(result?.systemPrompt).toContain("Financial Research Guidelines");
+		expect(result?.systemPrompt).toContain("Sources:");
 	});
 });
