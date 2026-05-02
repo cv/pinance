@@ -78,12 +78,35 @@ describe("callApi", () => {
 		await expect(callApi("/test", {})).rejects.toThrow("API key appears to be invalid");
 	});
 
+	it("should provide helpful message and details for 403 errors", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response("Forbidden", { status: 403, statusText: "Forbidden" }),
+		);
+
+		await expect(callApi("/test", { ticker: "AAPL" })).rejects.toThrow("Access denied");
+		await expect(callApi("/test", { ticker: "AAPL" })).rejects.toMatchObject({
+			status: 403,
+			statusText: "Forbidden",
+			url: "https://api.financialdatasets.ai/test?ticker=AAPL",
+		});
+	});
+
 	it("should provide helpful message for 429 rate limit errors", async () => {
 		vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			new Response("Too Many Requests", { status: 429, statusText: "Too Many Requests" }),
 		);
 
 		await expect(callApi("/test", {})).rejects.toThrow("Rate limit exceeded");
+	});
+
+	it("should provide helpful message for server errors", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response("Server Error", { status: 500, statusText: "Server Error" }),
+		);
+
+		await expect(callApi("/test", {})).rejects.toThrow(
+			"Financial Datasets API is experiencing issues",
+		);
 	});
 
 	it("should return data and url", async () => {
