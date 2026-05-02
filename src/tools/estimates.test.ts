@@ -43,9 +43,9 @@ describe("estimates tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "NVDA", period: "quarterly" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -64,7 +64,7 @@ describe("estimates tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_analyst_estimates");
-			await tool.execute("test-id", { ticker: "AAPL" }, vi.fn(), {}, undefined);
+			await tool.execute("test-id", { ticker: "AAPL" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/analyst-estimates/",
@@ -80,7 +80,7 @@ describe("estimates tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_analyst_estimates");
-			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "XYZ" }, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);

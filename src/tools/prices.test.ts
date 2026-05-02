@@ -46,7 +46,7 @@ describe("prices tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_price_snapshot");
-			const result = await tool.execute("test-id", { ticker: "AAPL" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "AAPL" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith("/prices/snapshot/", { ticker: "AAPL" }, undefined);
 			expect(getResultType(result)).toBe("text");
@@ -61,7 +61,7 @@ describe("prices tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_price_snapshot");
-			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "XYZ" }, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual({});
 		});
@@ -88,9 +88,9 @@ describe("prices tools", () => {
 					start_date: "2024-01-01",
 					end_date: "2024-01-10",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -122,9 +122,9 @@ describe("prices tools", () => {
 					start_date: "2024-01-01",
 					end_date: "2024-01-10",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -154,9 +154,9 @@ describe("prices tools", () => {
 					start_date: "2024-01-01",
 					end_date: "2024-01-10",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(getResultJson(result)).toEqual([]);

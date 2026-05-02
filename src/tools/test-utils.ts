@@ -10,9 +10,9 @@ export interface MockTool {
 	execute: (
 		toolCallId: string,
 		params: Record<string, unknown>,
+		signal: AbortSignal | undefined,
 		onUpdate: ReturnType<typeof vi.fn>,
 		ctx: Record<string, unknown>,
-		signal: AbortSignal | undefined,
 	) => Promise<ToolResult>;
 }
 

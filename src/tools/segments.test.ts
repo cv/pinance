@@ -44,9 +44,9 @@ describe("segments tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "AAPL", period: "annual", limit: 5 },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -67,9 +67,9 @@ describe("segments tools", () => {
 			await tool.execute(
 				"test-id",
 				{ ticker: "MSFT", period: "quarterly" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -89,9 +89,9 @@ describe("segments tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "XYZ", period: "annual" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(getResultJson(result)).toEqual({});

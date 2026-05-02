@@ -4,6 +4,12 @@ import { callApi } from "./api.js";
 
 type ApiParams = Record<string, string | number | string[] | undefined>;
 
+function isAbortSignal(value: unknown): value is AbortSignal {
+	return (
+		typeof value === "object" && value !== null && "aborted" in value && "addEventListener" in value
+	);
+}
+
 interface SimpleToolConfig<TParams, TResponse> {
 	name: string;
 	label: string;
@@ -33,14 +39,15 @@ export function registerSimpleTool<TParams, TResponse>(
 		execute: async (
 			_toolCallId,
 			params,
+			signal,
 			_onUpdate,
 			_ctx,
-			signal,
 		): Promise<AgentToolResult<unknown>> => {
+			const abortSignal = isAbortSignal(signal) ? signal : isAbortSignal(_ctx) ? _ctx : undefined;
 			const { data, url } = await callApi<TResponse>(
 				config.endpoint,
 				config.buildParams(params as TParams),
-				signal,
+				abortSignal,
 			);
 
 			const extracted = config.extractData(data);

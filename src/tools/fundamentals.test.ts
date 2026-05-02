@@ -43,9 +43,9 @@ describe("fundamentals tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "AAPL", period: "annual", limit: 5 },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -74,9 +74,9 @@ describe("fundamentals tools", () => {
 			await tool.execute(
 				"test-id",
 				{ ticker: "AAPL", period: "quarterly" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -101,9 +101,9 @@ describe("fundamentals tools", () => {
 					report_period_gte: "2020-01-01",
 					report_period_lte: "2023-12-31",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -126,9 +126,9 @@ describe("fundamentals tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "XYZ", period: "annual" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(getResultJson(result)).toEqual({});
@@ -147,9 +147,9 @@ describe("fundamentals tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "MSFT", period: "quarterly" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -173,9 +173,9 @@ describe("fundamentals tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "GOOGL", period: "ttm" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -203,9 +203,9 @@ describe("fundamentals tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "TSLA", period: "annual" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(

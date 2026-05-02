@@ -48,9 +48,9 @@ describe("insider-trades tools", () => {
 					filing_date_gte: "2024-01-01",
 					filing_date_lte: "2024-06-30",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			// Ticker normalization happens in callApi, so tool passes original value
@@ -78,7 +78,7 @@ describe("insider-trades tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_insider_trades");
-			await tool.execute("test-id", { ticker: "msft" }, vi.fn(), {}, undefined);
+			await tool.execute("test-id", { ticker: "msft" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/insider-trades/",
@@ -94,7 +94,7 @@ describe("insider-trades tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_insider_trades");
-			await tool.execute("test-id", { ticker: "TSLA" }, vi.fn(), {}, undefined);
+			await tool.execute("test-id", { ticker: "TSLA" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/insider-trades/",
@@ -110,7 +110,7 @@ describe("insider-trades tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_insider_trades");
-			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "XYZ" }, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);

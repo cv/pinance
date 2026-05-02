@@ -48,9 +48,9 @@ describe("news tools", () => {
 					end_date: "2024-01-31",
 					limit: 20,
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -74,7 +74,7 @@ describe("news tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_news");
-			await tool.execute("test-id", { ticker: "MSFT" }, vi.fn(), {}, undefined);
+			await tool.execute("test-id", { ticker: "MSFT" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/news/",
@@ -95,7 +95,7 @@ describe("news tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_news");
-			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "XYZ" }, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);

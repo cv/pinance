@@ -38,7 +38,7 @@ describe("metrics tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_financial_metrics_snapshot");
-			const result = await tool.execute("test-id", { ticker: "AAPL" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "AAPL" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/financial-metrics/snapshot/",
@@ -55,7 +55,7 @@ describe("metrics tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_financial_metrics_snapshot");
-			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "XYZ" }, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual({});
 		});
@@ -81,9 +81,9 @@ describe("metrics tools", () => {
 					limit: 10,
 					report_period_gte: "2020-01-01",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -111,7 +111,7 @@ describe("metrics tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_financial_metrics");
-			await tool.execute("test-id", { ticker: "MSFT" }, vi.fn(), {}, undefined);
+			await tool.execute("test-id", { ticker: "MSFT" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/financial-metrics/",
@@ -131,7 +131,7 @@ describe("metrics tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_financial_metrics");
-			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "XYZ" }, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);

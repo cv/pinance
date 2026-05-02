@@ -39,7 +39,7 @@ describe("crypto tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_crypto_price_snapshot");
-			const result = await tool.execute("test-id", { ticker: "BTC-USD" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "BTC-USD" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/crypto/prices/snapshot/",
@@ -56,7 +56,7 @@ describe("crypto tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_crypto_price_snapshot");
-			const result = await tool.execute("test-id", { ticker: "BTC-USD" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "BTC-USD" }, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual({});
 		});
@@ -83,9 +83,9 @@ describe("crypto tools", () => {
 					start_date: "2024-01-01",
 					end_date: "2024-01-10",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -117,9 +117,9 @@ describe("crypto tools", () => {
 					start_date: "2024-01-01",
 					end_date: "2024-01-10",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -149,9 +149,9 @@ describe("crypto tools", () => {
 					start_date: "2024-01-01",
 					end_date: "2024-01-10",
 				},
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(getResultJson(result)).toEqual([]);
@@ -168,7 +168,7 @@ describe("crypto tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_available_crypto_tickers");
-			const result = await tool.execute("test-id", {}, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", {}, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith("/crypto/prices/tickers/", {}, undefined);
 			expect(getResultJson(result)).toEqual(mockTickers);
@@ -182,7 +182,7 @@ describe("crypto tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_available_crypto_tickers");
-			const result = await tool.execute("test-id", {}, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", {}, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);

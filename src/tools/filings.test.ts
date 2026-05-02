@@ -46,9 +46,9 @@ describe("filings tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "AAPL", filing_type: "10-K", limit: 5 },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
@@ -67,7 +67,7 @@ describe("filings tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_filings");
-			await tool.execute("test-id", { ticker: "AAPL" }, vi.fn(), {}, undefined);
+			await tool.execute("test-id", { ticker: "AAPL" }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/filings/",
@@ -83,7 +83,7 @@ describe("filings tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_filings");
-			const result = await tool.execute("test-id", { ticker: "XYZ" }, vi.fn(), {}, undefined);
+			const result = await tool.execute("test-id", { ticker: "XYZ" }, undefined, vi.fn(), {});
 
 			expect(getResultJson(result)).toEqual([]);
 			expect(result.details.count).toBe(0);
@@ -102,9 +102,9 @@ describe("filings tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "aapl", year: 2023, item: ["Item-1", "Item-1A"] },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			// Ticker normalization happens in callApi, so tool passes original value
@@ -128,7 +128,7 @@ describe("filings tools", () => {
 			});
 
 			const tool = getTool(mockPi.tools, "get_10K_filing_items");
-			await tool.execute("test-id", { ticker: "MSFT", year: 2022 }, vi.fn(), {}, undefined);
+			await tool.execute("test-id", { ticker: "MSFT", year: 2022 }, undefined, vi.fn(), {});
 
 			expect(mockCallApi).toHaveBeenCalledWith(
 				"/filings/items/",
@@ -155,9 +155,9 @@ describe("filings tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "googl", year: 2024, quarter: 1, item: ["Item-1"] },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			// Ticker normalization happens in callApi, so tool passes original value
@@ -188,9 +188,9 @@ describe("filings tools", () => {
 			const result = await tool.execute(
 				"test-id",
 				{ ticker: "tsla", accession_number: "0001628280-24-012345" },
+				undefined,
 				vi.fn(),
 				{},
-				undefined,
 			);
 
 			// Ticker normalization happens in callApi, so tool passes original value
