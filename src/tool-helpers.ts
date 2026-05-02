@@ -14,6 +14,8 @@ interface SimpleToolConfig<TParams extends TObject, TResponse> {
 	name: string;
 	label: string;
 	description: string;
+	promptGuidelines?: string[];
+	promptSnippet?: string;
 	parameters: TParams;
 	endpoint: string;
 	buildParams: (params: Static<TParams>) => ApiParams;
@@ -35,6 +37,8 @@ export function registerSimpleTool<TParams extends TObject, TResponse>(
 		name: config.name,
 		label: config.label,
 		description: config.description,
+		promptSnippet: config.promptSnippet ?? config.description,
+		...(config.promptGuidelines ? { promptGuidelines: config.promptGuidelines } : {}),
 		parameters: config.parameters,
 		execute: async (
 			_toolCallId,

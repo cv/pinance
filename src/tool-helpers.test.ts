@@ -38,6 +38,22 @@ describe("tool helpers", () => {
 		vi.resetAllMocks();
 	});
 
+	it("adds a prompt snippet to registered tools by default", () => {
+		const { pi, getTool } = createMockPi();
+
+		registerSimpleTool<typeof paramsSchema, { snapshot: Record<string, unknown> }>(pi, {
+			name: "test_snapshot",
+			label: "Test Snapshot",
+			description: "Test snapshot tool",
+			parameters: paramsSchema,
+			endpoint: "/test/",
+			buildParams: (params) => ({ ticker: params.ticker }),
+			extractData: (response) => response.snapshot,
+		});
+
+		expect(getTool().promptSnippet).toBe("Test snapshot tool");
+	});
+
 	it("passes the current pi abort signal argument to API calls", async () => {
 		mockCallApi.mockResolvedValue({
 			data: { snapshot: { price: 123 } },
