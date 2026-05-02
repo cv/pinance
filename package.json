@@ -8,6 +8,7 @@
 		"check": "biome check .",
 		"check:fix": "biome check --write .",
 		"test": "vitest run --exclude src/e2e.test.ts",
+		"test:coverage": "vitest run --exclude src/e2e.test.ts --coverage",
 		"test:e2e": "vitest run src/e2e.test.ts",
 		"test:all": "vitest run",
 		"test:watch": "vitest --exclude src/e2e.test.ts",
