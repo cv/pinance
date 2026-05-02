@@ -24,11 +24,11 @@ export class ApiKeyMissingError extends Error {
 }
 
 export class ApiRequestError extends Error {
-	constructor(
-		public readonly status: number,
-		public readonly statusText: string,
-		public readonly url: string,
-	) {
+	public readonly status: number;
+	public readonly statusText: string;
+	public readonly url: string;
+
+	constructor(status: number, statusText: string, url: string) {
 		let message = `API request failed: ${status} ${statusText}`;
 
 		if (status === 401) {
@@ -46,6 +46,9 @@ export class ApiRequestError extends Error {
 
 		super(message);
 		this.name = "ApiRequestError";
+		this.status = status;
+		this.statusText = statusText;
+		this.url = url;
 	}
 }
 
