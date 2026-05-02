@@ -5,30 +5,6 @@ import { formatItemsDescription, ITEMS_10K_MAP, ITEMS_10Q_MAP } from "../constan
 import { TickerParam } from "../schemas.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
 
-interface FilingsParams {
-	ticker: string;
-	filing_type?: "10-K" | "10-Q" | "8-K";
-	limit?: number;
-}
-
-interface Filing10KItemsParams {
-	ticker: string;
-	year: number;
-	item?: string[];
-}
-
-interface Filing10QItemsParams {
-	ticker: string;
-	year: number;
-	quarter: number;
-	item?: string[];
-}
-
-interface Filing8KItemsParams {
-	ticker: string;
-	accession_number: string;
-}
-
 const filingsParams = Type.Object({
 	ticker: TickerParam,
 	filing_type: Type.Optional(
@@ -81,7 +57,7 @@ const filing8KItemsParams = Type.Object({
 });
 
 export function registerFilingsTools(pi: ExtensionAPI): void {
-	registerArrayTool<FilingsParams, ArrayResponse<"filings">>(pi, {
+	registerArrayTool<typeof filingsParams, ArrayResponse<"filings">>(pi, {
 		name: "get_filings",
 		label: "Get Filings",
 		description:
@@ -96,7 +72,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 		extractData: (response) => response.filings ?? [],
 	});
 
-	registerSimpleTool<Filing10KItemsParams, Record<string, unknown>>(pi, {
+	registerSimpleTool<typeof filing10KItemsParams, Record<string, unknown>>(pi, {
 		name: "get_10K_filing_items",
 		label: "Get 10-K Filing Items",
 		description:
@@ -112,7 +88,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 		extractData: (data) => data,
 	});
 
-	registerSimpleTool<Filing10QItemsParams, Record<string, unknown>>(pi, {
+	registerSimpleTool<typeof filing10QItemsParams, Record<string, unknown>>(pi, {
 		name: "get_10Q_filing_items",
 		label: "Get 10-Q Filing Items",
 		description:
@@ -129,7 +105,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 		extractData: (data) => data,
 	});
 
-	registerSimpleTool<Filing8KItemsParams, Record<string, unknown>>(pi, {
+	registerSimpleTool<typeof filing8KItemsParams, Record<string, unknown>>(pi, {
 		name: "get_8K_filing_items",
 		label: "Get 8-K Filing Items",
 		description:

@@ -1,5 +1,5 @@
 import type { AgentToolResult, ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import type { TObject } from "@sinclair/typebox";
+import type { Static, TObject } from "@sinclair/typebox";
 import { callApi } from "./api.js";
 
 type ApiParams = Record<string, string | number | string[] | undefined>;
@@ -10,13 +10,13 @@ function isAbortSignal(value: unknown): value is AbortSignal {
 	);
 }
 
-interface SimpleToolConfig<TParams, TResponse> {
+interface SimpleToolConfig<TParams extends TObject, TResponse> {
 	name: string;
 	label: string;
 	description: string;
-	parameters: TObject;
+	parameters: TParams;
 	endpoint: string;
-	buildParams: (params: TParams) => ApiParams;
+	buildParams: (params: Static<TParams>) => ApiParams;
 	extractData: (response: TResponse) => unknown;
 	/** If provided, adds count to details (for array responses) */
 	getCount?: (data: unknown) => number;
@@ -27,7 +27,7 @@ interface SimpleToolConfig<TParams, TResponse> {
  * Handles the common pattern of: call API → extract data → return JSON result.
  * Includes source URL in both the response text (for LLM citation) and details.
  */
-export function registerSimpleTool<TParams, TResponse>(
+export function registerSimpleTool<TParams extends TObject, TResponse>(
 	pi: ExtensionAPI,
 	config: SimpleToolConfig<TParams, TResponse>,
 ): void {
@@ -46,7 +46,7 @@ export function registerSimpleTool<TParams, TResponse>(
 			const abortSignal = isAbortSignal(signal) ? signal : isAbortSignal(_ctx) ? _ctx : undefined;
 			const { data, url } = await callApi<TResponse>(
 				config.endpoint,
-				config.buildParams(params as TParams),
+				config.buildParams(params as Static<TParams>),
 				abortSignal,
 			);
 
@@ -71,7 +71,7 @@ export function registerSimpleTool<TParams, TResponse>(
 /**
  * Helper for array responses - automatically adds count to details.
  */
-export function registerArrayTool<TParams, TResponse>(
+export function registerArrayTool<TParams extends TObject, TResponse>(
 	pi: ExtensionAPI,
 	config: Omit<SimpleToolConfig<TParams, TResponse>, "getCount"> & {
 		extractData: (response: TResponse) => unknown[];

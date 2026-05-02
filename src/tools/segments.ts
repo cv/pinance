@@ -4,12 +4,6 @@ import type { ObjectResponse } from "../api.js";
 import { PeriodTypeNoTtm, TickerParam } from "../schemas.js";
 import { registerSimpleTool } from "../tool-helpers.js";
 
-interface SegmentedRevenuesParams {
-	ticker: string;
-	period: "annual" | "quarterly";
-	limit?: number;
-}
-
 const segmentedRevenuesParams = Type.Object({
 	ticker: TickerParam,
 	period: PeriodTypeNoTtm,
@@ -22,7 +16,7 @@ const segmentedRevenuesParams = Type.Object({
 });
 
 export function registerSegmentsTools(pi: ExtensionAPI): void {
-	registerSimpleTool<SegmentedRevenuesParams, ObjectResponse<"segmented_revenues">>(pi, {
+	registerSimpleTool<typeof segmentedRevenuesParams, ObjectResponse<"segmented_revenues">>(pi, {
 		name: "get_segmented_revenues",
 		label: "Get Segmented Revenues",
 		description:

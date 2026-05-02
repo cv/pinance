@@ -4,18 +4,13 @@ import type { ArrayResponse } from "../api.js";
 import { PeriodTypeNoTtm, TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
-interface EstimatesParams {
-	ticker: string;
-	period?: "annual" | "quarterly";
-}
-
 const estimatesParams = Type.Object({
 	ticker: TickerParam,
 	period: Type.Optional(PeriodTypeNoTtm),
 });
 
 export function registerEstimatesTools(pi: ExtensionAPI): void {
-	registerArrayTool<EstimatesParams, ArrayResponse<"analyst_estimates">>(pi, {
+	registerArrayTool<typeof estimatesParams, ArrayResponse<"analyst_estimates">>(pi, {
 		name: "get_analyst_estimates",
 		label: "Get Analyst Estimates",
 		description:

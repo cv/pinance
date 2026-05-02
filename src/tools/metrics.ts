@@ -1,25 +1,8 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import type { ArrayResponse, SnapshotResponse } from "../api.js";
-import {
-	PeriodType,
-	ReportPeriodFilterParams,
-	TickerOnlyParams,
-	type TickerOnlyParamsType,
-	TickerParam,
-} from "../schemas.js";
+import { PeriodType, ReportPeriodFilterParams, TickerOnlyParams, TickerParam } from "../schemas.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
-
-interface MetricsParams {
-	ticker: string;
-	period?: "annual" | "quarterly" | "ttm";
-	limit?: number;
-	report_period?: string;
-	report_period_gt?: string;
-	report_period_gte?: string;
-	report_period_lt?: string;
-	report_period_lte?: string;
-}
 
 const metricsParams = Type.Object({
 	ticker: TickerParam,
@@ -39,7 +22,7 @@ const metricsParams = Type.Object({
 });
 
 export function registerMetricsTools(pi: ExtensionAPI): void {
-	registerSimpleTool<TickerOnlyParamsType, SnapshotResponse>(pi, {
+	registerSimpleTool<typeof TickerOnlyParams, SnapshotResponse>(pi, {
 		name: "get_financial_metrics_snapshot",
 		label: "Get Financial Metrics Snapshot",
 		description:
@@ -50,7 +33,7 @@ export function registerMetricsTools(pi: ExtensionAPI): void {
 		extractData: (response) => response.snapshot ?? {},
 	});
 
-	registerArrayTool<MetricsParams, ArrayResponse<"financial_metrics">>(pi, {
+	registerArrayTool<typeof metricsParams, ArrayResponse<"financial_metrics">>(pi, {
 		name: "get_financial_metrics",
 		label: "Get Financial Metrics",
 		description:

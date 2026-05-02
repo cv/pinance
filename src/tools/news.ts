@@ -4,13 +4,6 @@ import type { ArrayResponse } from "../api.js";
 import { OptionalDateRangeParams, TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
-interface NewsParams {
-	ticker: string;
-	start_date?: string;
-	end_date?: string;
-	limit?: number;
-}
-
 const newsParams = Type.Object({
 	ticker: TickerParam,
 	...OptionalDateRangeParams,
@@ -23,7 +16,7 @@ const newsParams = Type.Object({
 });
 
 export function registerNewsTools(pi: ExtensionAPI): void {
-	registerArrayTool<NewsParams, ArrayResponse<"news">>(pi, {
+	registerArrayTool<typeof newsParams, ArrayResponse<"news">>(pi, {
 		name: "get_news",
 		label: "Get News",
 		description:

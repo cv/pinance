@@ -4,16 +4,6 @@ import type { ArrayResponse } from "../api.js";
 import { FilingDateFilterParams, TickerParam } from "../schemas.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
-interface InsiderTradesParams {
-	ticker: string;
-	limit?: number;
-	filing_date?: string;
-	filing_date_gt?: string;
-	filing_date_gte?: string;
-	filing_date_lt?: string;
-	filing_date_lte?: string;
-}
-
 const insiderTradesParams = Type.Object({
 	ticker: TickerParam,
 	limit: Type.Optional(
@@ -26,7 +16,7 @@ const insiderTradesParams = Type.Object({
 });
 
 export function registerInsiderTradesTools(pi: ExtensionAPI): void {
-	registerArrayTool<InsiderTradesParams, ArrayResponse<"insider_trades">>(pi, {
+	registerArrayTool<typeof insiderTradesParams, ArrayResponse<"insider_trades">>(pi, {
 		name: "get_insider_trades",
 		label: "Get Insider Trades",
 		description:

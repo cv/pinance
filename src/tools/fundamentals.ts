@@ -1,17 +1,7 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { Type } from "@sinclair/typebox";
+import { type Static, Type } from "@sinclair/typebox";
 import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
 import { registerSimpleTool } from "../tool-helpers.js";
-
-interface FinancialStatementsParams {
-	ticker: string;
-	period: "annual" | "quarterly" | "ttm";
-	limit?: number;
-	report_period_gt?: string;
-	report_period_gte?: string;
-	report_period_lt?: string;
-	report_period_lte?: string;
-}
 
 const financialStatementsParams = Type.Object({
 	ticker: TickerParam,
@@ -24,6 +14,8 @@ const financialStatementsParams = Type.Object({
 	),
 	...ReportPeriodFilterParams,
 });
+
+type FinancialStatementsParams = Static<typeof financialStatementsParams>;
 
 const buildParams = (params: FinancialStatementsParams) => ({
 	ticker: params.ticker,
@@ -80,7 +72,7 @@ const financialTools: FinancialToolConfig[] = [
 
 export function registerFundamentalsTools(pi: ExtensionAPI): void {
 	for (const tool of financialTools) {
-		registerSimpleTool<FinancialStatementsParams, Record<string, unknown>>(pi, {
+		registerSimpleTool<typeof financialStatementsParams, Record<string, unknown>>(pi, {
 			name: tool.name,
 			label: tool.label,
 			description: tool.description,

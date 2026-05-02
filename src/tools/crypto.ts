@@ -6,20 +6,11 @@ import {
 	CryptoTickerParam,
 	DateRangeParams,
 	PriceIntervalParams,
-	type TickerOnlyParamsType,
 } from "../schemas.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
 
 interface TickersResponse {
 	tickers: string[];
-}
-
-interface CryptoPricesParams {
-	ticker: string;
-	interval?: "minute" | "day" | "week" | "month" | "year";
-	interval_multiplier?: number;
-	start_date: string;
-	end_date: string;
 }
 
 const cryptoPricesParams = Type.Object({
@@ -28,8 +19,10 @@ const cryptoPricesParams = Type.Object({
 	...DateRangeParams,
 });
 
+const emptyParams = Type.Object({});
+
 export function registerCryptoTools(pi: ExtensionAPI): void {
-	registerSimpleTool<TickerOnlyParamsType, SnapshotResponse>(pi, {
+	registerSimpleTool<typeof CryptoTickerOnlyParams, SnapshotResponse>(pi, {
 		name: "get_crypto_price_snapshot",
 		label: "Get Crypto Price Snapshot",
 		description:
@@ -40,7 +33,7 @@ export function registerCryptoTools(pi: ExtensionAPI): void {
 		extractData: (response) => response.snapshot ?? {},
 	});
 
-	registerArrayTool<CryptoPricesParams, ArrayResponse<"prices">>(pi, {
+	registerArrayTool<typeof cryptoPricesParams, ArrayResponse<"prices">>(pi, {
 		name: "get_crypto_prices",
 		label: "Get Crypto Prices",
 		description:
@@ -57,11 +50,11 @@ export function registerCryptoTools(pi: ExtensionAPI): void {
 		extractData: (response) => response.prices ?? [],
 	});
 
-	registerArrayTool<Record<string, never>, TickersResponse>(pi, {
+	registerArrayTool<typeof emptyParams, TickersResponse>(pi, {
 		name: "get_available_crypto_tickers",
 		label: "Get Available Crypto Tickers",
 		description: "Retrieves the list of available cryptocurrency tickers.",
-		parameters: Type.Object({}),
+		parameters: emptyParams,
 		endpoint: "/crypto/prices/tickers/",
 		buildParams: () => ({}),
 		extractData: (response) => response.tickers ?? [],

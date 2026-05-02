@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { type Static, Type } from "@sinclair/typebox";
 
 // Common interval types for price data
 export const IntervalType = Type.Union(
@@ -43,8 +43,9 @@ export const CryptoTickerParam = Type.String({
 export const TickerOnlyParams = Type.Object({ ticker: TickerParam });
 export const CryptoTickerOnlyParams = Type.Object({ ticker: CryptoTickerParam });
 
-// TypeScript type for ticker-only params
-export type TickerOnlyParamsType = { ticker: string };
+// TypeScript types derived from TypeBox schemas
+export type TickerOnlyParamsType = Static<typeof TickerOnlyParams>;
+export type CryptoTickerOnlyParamsType = Static<typeof CryptoTickerOnlyParams>;
 
 // Date range parameters
 export const DateRangeParams = {
