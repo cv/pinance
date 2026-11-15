@@ -4,6 +4,7 @@ The [pit](https://github.com/cv/pit) functions in [`.pi/functions/`](../.pi/func
 
 | Layer | Functions | Job |
 |---|---|---|
+| Presentation | `chart.*` | Mermaid charts and sparklines from any of the layers below ([charts.md](charts.md)) |
 | Domain | `market.*` | Normalized records, from the provider chosen for each call |
 | Provider families | `fd.*`, `eq.*` | One declarative call per endpoint |
 | Transport | `pinance.get`, `pinance.list` | URL, key, `curl`, errors, and the result envelope |

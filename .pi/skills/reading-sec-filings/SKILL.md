@@ -16,7 +16,7 @@ description: Extracts content from SEC filings (10-K, 10-Q, 8-K) via Financial D
 
 Tools pick the provider that has a key (Financial Datasets or Equibles; `PINANCE_PROVIDER` decides when both do). A dash means that provider lacks the data.
 
-Under [pit](https://github.com/cv/pit), call the saved functions from one program. `market.quote`, `market.prices`, `market.filings`, `market.insiderTrades`, and `market.valuation` return the same normalized records from whichever provider has a key. For anything else use `fd.*` (Financial Datasets) or `eq.*` (Equibles); `pinance.providers()` says which is active. For example `({ market: { valuation } }) => valuation({ tickers: ["AAPL", "MSFT"] })`. Every function returns `{ provider, data, url }` (lists also `count`, Equibles results `meta`); cite `url`.
+Under [pit](https://github.com/cv/pit), call the saved functions from one program. `market.quote`, `market.prices`, `market.filings`, `market.insiderTrades`, and `market.valuation` return the same normalized records from whichever provider has a key. For anything else use `fd.*` (Financial Datasets) or `eq.*` (Equibles); `pinance.providers()` says which is active. For example `({ market: { valuation } }) => valuation({ tickers: ["AAPL", "MSFT"] })`. Every function returns `{ provider, data, url }` (lists also `count`, Equibles results `meta`); cite `url`. For charts, use `chart.*` and post the `markdown` it returns (see the researching-stocks skill).
 
 Only Equibles has (tool / function):
 - `search_filings` / `eq.searchFilings({ query, ticker? })`: keyword and semantic search over filings and transcripts since 2000, with deep links to the passage

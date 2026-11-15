@@ -122,3 +122,14 @@ Research Progress:
 - [x] Step 4: Have comprehensive data. Complete.
 - [x] Step 5: Synthesizing...
 ```
+
+## Charts
+
+Under pit, draw charts with `chart.*`, never hand-written Mermaid, and post the `markdown` it returns as is. GitHub renders it in issues, pull requests, and comments.
+
+- `chart.prices({ tickers, startDate, endDate, interval })`: closing prices (several tickers are rebased to 100).
+- `chart.xy({ title, x, series: [{ name, values, kind }], yLabel, unit, source })`: lines and bars, such as revenue by year, margins, P/E history, or short interest. Add `horizontal: true` for ranked bars such as top holders.
+- `chart.pie({ title, slices: [{ label, value }], unit, source })`: breakdowns, such as revenue by segment.
+- `chart.sparkline(values)`: a trend inside a table cell, wrapped in backticks. Use this in a terminal, where Mermaid does not render.
+
+Chart only what the answer needs, usually one to three charts, and pass the URLs the data came from as `source`.

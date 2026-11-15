@@ -64,7 +64,7 @@ pi install /path/to/pinance
 
 Under [pit](https://github.com/cv/pit) (`pi install git:github.com/cv/pit`), the model writes TypeScript programs instead of calling tools one at a time. This repository has the same data as project functions, loaded when you trust the project: [`.pi/functions/fd/`](.pi/functions/fd/) for Financial Datasets and [`.pi/functions/eq/`](.pi/functions/eq/) for Equibles. `pinance.providers()` reports which provider has a key (never the key itself).
 
-For data both providers have, the [`market.*`](.pi/functions/market/) functions return one normalized shape from whichever provider is active, or the one named with `provider: "fd"` or `"eq"`: `market.quote({ tickers })`, `market.prices({ ticker, startDate, endDate, interval })`, `market.filings({ ticker, form })`, `market.insiderTrades({ ticker })`, and `market.valuation({ tickers })`. The provider functions cover everything else:
+For data both providers have, the [`market.*`](.pi/functions/market/) functions return one normalized shape from whichever provider is active, or the one named with `provider: "fd"` or `"eq"`: `market.quote({ tickers })`, `market.prices({ ticker, startDate, endDate, interval })`, `market.filings({ ticker, form })`, `market.insiderTrades({ ticker })`, and `market.valuation({ tickers })`. The provider functions cover everything else. [`chart.*`](docs/charts.md) turns any of it into Mermaid charts that GitHub renders in issues and pull requests.
 
 | Data | Financial Datasets | Equibles |
 |------|--------------------|----------|
