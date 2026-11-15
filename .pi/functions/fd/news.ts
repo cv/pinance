@@ -7,15 +7,19 @@
  * @param input.limit - Number of articles (default 10, max 100).
  */
 async function news(
-  { fd: { request } },
+  { pinance: { list } },
   input: { ticker: string; start_date?: string; end_date?: string; limit?: number },
-): Promise<{ data: { [key: string]: PitJsonValue }[]; url: string; count: number }> {
-  const { data, url } = await request("/news/", {
-    ticker: input.ticker,
-    start_date: input.start_date,
-    end_date: input.end_date,
-    limit: Math.min(input.limit ?? 10, 100),
-  });
-  const rows = data.news ?? [];
-  return { data: rows, url, count: rows.length };
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: { [key: string]: PitJsonValue }[];
+  url: string;
+  count: number;
+  meta?: { [key: string]: PitJsonValue };
+}> {
+  return list(
+    "financialdatasets",
+    "/news/",
+    { ...input, limit: Math.min(input.limit ?? 10, 100) },
+    "news",
+  );
 }

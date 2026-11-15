@@ -9,7 +9,7 @@
  * @param input.report_period_lte - Only periods on or before this date, YYYY-MM-DD.
  */
 async function segmentedRevenues(
-  { fd: { request } },
+  { pinance: { get } },
   input: {
     ticker: string;
     period: "annual" | "quarterly";
@@ -18,16 +18,18 @@ async function segmentedRevenues(
     report_period_gte?: string;
     report_period_lte?: string;
   },
-): Promise<{ data: { [key: string]: PitJsonValue }[]; url: string; count: number }> {
-  const { data, url } = await request("/financials/income-statements/segments/", {
-    ticker: input.ticker,
-    period: input.period,
-    limit: input.limit ?? 4,
-    report_period: input.report_period,
-    report_period_gte: input.report_period_gte,
-    report_period_lte: input.report_period_lte,
-  });
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: { [key: string]: PitJsonValue }[];
+  url: string;
+  count: number;
+}> {
+  const { provider, data, url } = await get(
+    "financialdatasets",
+    "/financials/income-statements/segments/",
+    { ...input, limit: input.limit ?? 4 },
+  );
   // The API returns `income_statement_segments`; its docs still show `segmented_financials`.
   const rows = data.income_statement_segments ?? data.segmented_financials ?? [];
-  return { data: rows, url, count: rows.length };
+  return { provider, data: rows, url, count: rows.length };
 }

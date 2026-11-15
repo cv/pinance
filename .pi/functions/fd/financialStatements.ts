@@ -11,7 +11,7 @@
  * @param input.report_period_lte - Only periods on or before this date, YYYY-MM-DD.
  */
 async function financialStatements(
-  { fd: { request } },
+  { pinance: { get } },
   input: {
     ticker: string;
     period: "annual" | "quarterly" | "ttm";
@@ -22,22 +22,26 @@ async function financialStatements(
     report_period_lt?: string;
     report_period_lte?: string;
   },
-): Promise<{ data: PitJsonValue; url: string }> {
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: PitJsonValue;
+  url: string;
+  count?: number;
+  meta?: { [key: string]: PitJsonValue };
+}> {
   const routes = {
     income: ["/financials/income-statements/", "income_statements"],
     balance: ["/financials/balance-sheets/", "balance_sheets"],
     cash_flow: ["/financials/cash-flow-statements/", "cash_flow_statements"],
     all: ["/financials/", "financials"],
   } as const;
-  const [endpoint, key] = routes[input.statement ?? "all"];
-  const { data, url } = await request(endpoint, {
-    ticker: input.ticker,
-    period: input.period,
-    limit: input.limit ?? 10,
-    report_period_gt: input.report_period_gt,
-    report_period_gte: input.report_period_gte,
-    report_period_lt: input.report_period_lt,
-    report_period_lte: input.report_period_lte,
-  });
-  return { data: data[key] ?? {}, url };
+  const statement = input.statement ?? "all";
+  const [path, rows] = routes[statement];
+  const { statement: _statement, ...params } = input;
+  return get(
+    "financialdatasets",
+    path,
+    { ...params, limit: input.limit ?? 10 },
+    { rows, object: statement === "all" },
+  );
 }

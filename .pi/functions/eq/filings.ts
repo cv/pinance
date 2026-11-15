@@ -1,5 +1,5 @@
 /**
- * A company's SEC filings from Equibles, newest first, with summary, items, accession number, and URL.
+ * A company's SEC filings from Equibles, newest first, with summary, item numbers, accession number, and a document URL.
  *
  * @param input.ticker - Stock ticker, such as "AAPL".
  * @param input.documentType - "TenK", "TenQ", "EightK", or another Equibles document type.
@@ -9,7 +9,7 @@
  * @param input.offset - Filings to skip (max 2000).
  */
 async function filings(
-  { eq: { request } },
+  { pinance: { list } },
   input: {
     ticker: string;
     documentType?: string;
@@ -19,20 +19,11 @@ async function filings(
     offset?: number;
   },
 ): Promise<{
+  provider: "financialdatasets" | "equibles";
   data: { [key: string]: PitJsonValue }[];
   meta: { [key: string]: PitJsonValue };
   url: string;
+  count: number;
 }> {
-  const { data: body, url } = await request(
-    `/v1/stocks/${encodeURIComponent(input.ticker.trim().toUpperCase())}/filings`,
-    {
-      documentType: input.documentType,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      limit: input.limit,
-      offset: input.offset,
-    },
-  );
-  const { data = [], meta = {}, ...rest } = body;
-  return { data, meta: { ...rest, ...meta }, url };
+  return list("equibles", "/v1/stocks/{ticker}/filings", input, "data");
 }

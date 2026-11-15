@@ -10,7 +10,7 @@
  * @param input.filing_date_lte - Only filings on or before this date, YYYY-MM-DD.
  */
 async function insiderTrades(
-  { fd: { request } },
+  { pinance: { list } },
   input: {
     ticker: string;
     limit?: number;
@@ -20,16 +20,17 @@ async function insiderTrades(
     filing_date_lt?: string;
     filing_date_lte?: string;
   },
-): Promise<{ data: { [key: string]: PitJsonValue }[]; url: string; count: number }> {
-  const { data, url } = await request("/insider-trades/", {
-    ticker: input.ticker,
-    limit: Math.min(input.limit ?? 100, 1000),
-    filing_date: input.filing_date,
-    filing_date_gt: input.filing_date_gt,
-    filing_date_gte: input.filing_date_gte,
-    filing_date_lt: input.filing_date_lt,
-    filing_date_lte: input.filing_date_lte,
-  });
-  const rows = data.insider_trades ?? [];
-  return { data: rows, url, count: rows.length };
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: { [key: string]: PitJsonValue }[];
+  url: string;
+  count: number;
+  meta?: { [key: string]: PitJsonValue };
+}> {
+  return list(
+    "financialdatasets",
+    "/insider-trades/",
+    { ...input, limit: Math.min(input.limit ?? 100, 1000) },
+    "insider_trades",
+  );
 }

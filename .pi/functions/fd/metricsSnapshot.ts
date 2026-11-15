@@ -4,9 +4,18 @@
  * @param input.ticker - Stock ticker, such as "AAPL".
  */
 async function metricsSnapshot(
-  { fd: { request } },
+  { pinance: { get } },
   input: { ticker: string },
-): Promise<{ data: { [key: string]: PitJsonValue }; url: string }> {
-  const { data, url } = await request("/financial-metrics/snapshot/", { ticker: input.ticker });
-  return { data: data.snapshot ?? {}, url };
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: { [key: string]: PitJsonValue };
+  url: string;
+  meta?: { [key: string]: PitJsonValue };
+}> {
+  return get(
+    "financialdatasets",
+    "/financial-metrics/snapshot/",
+    { ticker: input.ticker },
+    { rows: "snapshot", object: true },
+  );
 }

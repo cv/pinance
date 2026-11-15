@@ -4,9 +4,18 @@
  * @param input.ticker - Crypto pair, such as "BTC-USD" (Bitcoin in USD) or "BTC-ETH" (Bitcoin in Ether).
  */
 async function cryptoPriceSnapshot(
-  { fd: { request } },
+  { pinance: { get } },
   input: { ticker: string },
-): Promise<{ data: { [key: string]: PitJsonValue }; url: string }> {
-  const { data, url } = await request("/crypto/prices/snapshot/", { ticker: input.ticker });
-  return { data: data.snapshot ?? {}, url };
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: { [key: string]: PitJsonValue };
+  url: string;
+  meta?: { [key: string]: PitJsonValue };
+}> {
+  return get(
+    "financialdatasets",
+    "/crypto/prices/snapshot/",
+    { ticker: input.ticker },
+    { rows: "snapshot", object: true },
+  );
 }

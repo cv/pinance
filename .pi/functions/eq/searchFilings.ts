@@ -1,5 +1,5 @@
 /**
- * Hybrid keyword and semantic search over SEC filings and call transcripts since 2000, from Equibles.
+ * Hybrid keyword and semantic search over SEC filings and call transcripts since 2000, from Equibles. Each passage has a `url` deep link to cite.
  *
  * @param input.query - What to find, such as "gross margin guidance".
  * @param input.ticker - Search one company's filings; omit to search all filings.
@@ -10,7 +10,7 @@
  * @param input.match - "ranked" (default) or "phrase" for exact phrases.
  */
 async function searchFilings(
-  { eq: { request } },
+  { pinance: { list } },
   input: {
     query: string;
     ticker?: string;
@@ -21,21 +21,12 @@ async function searchFilings(
     match?: "ranked" | "phrase";
   },
 ): Promise<{
+  provider: "financialdatasets" | "equibles";
   data: { [key: string]: PitJsonValue }[];
   meta: { [key: string]: PitJsonValue };
   url: string;
+  count: number;
 }> {
-  const path = input.ticker
-    ? `/v1/stocks/${encodeURIComponent(input.ticker.toUpperCase())}/filings/search`
-    : "/v1/filings/search";
-  const { data: body, url } = await request(path, {
-    query: input.query,
-    documentType: input.documentType?.join(","),
-    startDate: input.startDate,
-    endDate: input.endDate,
-    limit: input.limit,
-    match: input.match,
-  });
-  const { data = [], meta = {}, ...rest } = body;
-  return { data, meta: { ...rest, ...meta }, url };
+  const path = input.ticker ? "/v1/stocks/{ticker}/filings/search" : "/v1/filings/search";
+  return list("equibles", path, { ...input, documentType: input.documentType?.join(",") }, "data");
 }

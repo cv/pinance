@@ -1,5 +1,5 @@
 /**
- * Insider transactions (SEC Forms 3, 4, 5) for a stock from Equibles, newest first.
+ * Insider transactions (SEC Forms 3, 4, 5) for a stock from Equibles, newest first, with role, type, shares, price, and value.
  *
  * @param input.ticker - Stock ticker, such as "AAPL".
  * @param input.startDate - First transaction date, YYYY-MM-DD.
@@ -10,7 +10,7 @@
  * @param input.offset - Rows to skip.
  */
 async function insiderTransactions(
-  { eq: { request } },
+  { pinance: { list } },
   input: {
     ticker: string;
     startDate?: string;
@@ -21,21 +21,11 @@ async function insiderTransactions(
     offset?: number;
   },
 ): Promise<{
+  provider: "financialdatasets" | "equibles";
   data: { [key: string]: PitJsonValue }[];
   meta: { [key: string]: PitJsonValue };
   url: string;
+  count: number;
 }> {
-  const { data: body, url } = await request(
-    `/v1/stocks/${encodeURIComponent(input.ticker.trim().toUpperCase())}/insider-transactions`,
-    {
-      startDate: input.startDate,
-      endDate: input.endDate,
-      transactionType: input.transactionType,
-      insiderName: input.insiderName,
-      limit: input.limit,
-      offset: input.offset,
-    },
-  );
-  const { data = [], meta = {}, ...rest } = body;
-  return { data, meta: { ...rest, ...meta }, url };
+  return list("equibles", "/v1/stocks/{ticker}/insider-transactions", input, "data");
 }

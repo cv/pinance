@@ -1,5 +1,5 @@
 /**
- * Largest 13F institutional holders of a stock or ETF from Equibles, with value, share of total, holder type, and style.
+ * Largest 13F institutional holders of a stock or ETF from Equibles, ranked by shares, with value, share of total, holder type, and style.
  *
  * @param input.ticker - Exact listed symbol, such as "AAPL".
  * @param input.reportDate - 13F report date, YYYY-MM-DD (default latest; must be one of the stock's report dates).
@@ -9,7 +9,7 @@
  * @param input.offset - Rows to skip.
  */
 async function institutionalHolders(
-  { eq: { request } },
+  { pinance: { list } },
   input: {
     ticker: string;
     reportDate?: string;
@@ -19,20 +19,16 @@ async function institutionalHolders(
     offset?: number;
   },
 ): Promise<{
+  provider: "financialdatasets" | "equibles";
   data: { [key: string]: PitJsonValue }[];
   meta: { [key: string]: PitJsonValue };
   url: string;
+  count: number;
 }> {
-  const { data: body, url } = await request(
-    `/v1/stocks/${encodeURIComponent(input.ticker.toUpperCase())}/institutional-holders`,
-    {
-      reportDate: input.reportDate,
-      holderTypes: input.holderTypes?.join(","),
-      styles: input.styles?.join(","),
-      limit: input.limit,
-      offset: input.offset,
-    },
+  return list(
+    "equibles",
+    "/v1/stocks/{ticker}/institutional-holders",
+    { ...input, holderTypes: input.holderTypes?.join(","), styles: input.styles?.join(",") },
+    "data",
   );
-  const { data = [], meta = {}, ...rest } = body;
-  return { data, meta: { ...rest, ...meta }, url };
 }

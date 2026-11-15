@@ -9,7 +9,7 @@
  * @param input.offset - Bars to skip.
  */
 async function prices(
-  { eq: { request } },
+  { pinance: { list } },
   input: {
     ticker: string;
     startDate?: string;
@@ -19,20 +19,11 @@ async function prices(
     offset?: number;
   },
 ): Promise<{
+  provider: "financialdatasets" | "equibles";
   data: { [key: string]: PitJsonValue }[];
   meta: { [key: string]: PitJsonValue };
   url: string;
+  count: number;
 }> {
-  const { data: body, url } = await request(
-    `/v1/stocks/${encodeURIComponent(input.ticker.trim().toUpperCase())}/prices`,
-    {
-      startDate: input.startDate,
-      endDate: input.endDate,
-      interval: input.interval,
-      limit: input.limit,
-      offset: input.offset,
-    },
-  );
-  const { data = [], meta = {}, ...rest } = body;
-  return { data, meta: { ...rest, ...meta }, url };
+  return list("equibles", "/v1/stocks/{ticker}/prices", input, "data");
 }

@@ -15,7 +15,7 @@
  * @param input.item - Items to return, such as ["Item-1A", "Item-7"]. Omit for all items.
  */
 async function filingItems(
-  { fd: { request } },
+  { pinance: { get } },
   input: {
     ticker: string;
     filing_type: "10-K" | "10-Q" | "8-K";
@@ -24,20 +24,23 @@ async function filingItems(
     accession_number?: string;
     item?: string[];
   },
-): Promise<{ data: { [key: string]: PitJsonValue }; url: string }> {
-  if (input.filing_type === "8-K" && !input.accession_number)
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: { [key: string]: PitJsonValue };
+  url: string;
+}> {
+  const eightK = input.filing_type === "8-K";
+  if (eightK && !input.accession_number)
     throw new Error("8-K items need accession_number (see fd.filings).");
-  if (input.filing_type !== "8-K" && input.year === undefined)
-    throw new Error(`${input.filing_type} items need year.`);
+  if (!eightK && input.year === undefined) throw new Error(`${input.filing_type} items need year.`);
   if (input.filing_type === "10-Q" && input.quarter === undefined)
     throw new Error("10-Q items need quarter (1-4).");
-  const { data, url } = await request("/filings/items/", {
+  return get("financialdatasets", "/filings/items/", {
     ticker: input.ticker,
     filing_type: input.filing_type,
-    year: input.filing_type === "8-K" ? undefined : input.year,
+    year: eightK ? undefined : input.year,
     quarter: input.filing_type === "10-Q" ? input.quarter : undefined,
-    accession_number: input.filing_type === "8-K" ? input.accession_number : undefined,
+    accession_number: eightK ? input.accession_number : undefined,
     item: input.item,
   });
-  return { data, url };
 }

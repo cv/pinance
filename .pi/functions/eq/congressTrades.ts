@@ -1,5 +1,5 @@
 /**
- * Stock trades disclosed by members of the U.S. House and Senate, from Equibles.
+ * Stock trades disclosed by members of the U.S. House and Senate, from Equibles. Needs ticker, memberId, or both.
  *
  * @param input.ticker - Traded symbol, such as "NVDA".
  * @param input.memberId - Member id from GET /v1/congress/members (via eq.request).
@@ -10,7 +10,7 @@
  * @param input.offset - Rows to skip.
  */
 async function congressTrades(
-  { eq: { request } },
+  { pinance: { list } },
   input: {
     ticker?: string;
     memberId?: string;
@@ -21,21 +21,13 @@ async function congressTrades(
     offset?: number;
   },
 ): Promise<{
+  provider: "financialdatasets" | "equibles";
   data: { [key: string]: PitJsonValue }[];
   meta: { [key: string]: PitJsonValue };
   url: string;
+  count: number;
 }> {
   if (!input.ticker && !input.memberId)
     throw new Error("eq.congressTrades needs ticker, memberId, or both.");
-  const { data: body, url } = await request("/v1/congress/trades", {
-    ticker: input.ticker?.toUpperCase(),
-    memberId: input.memberId,
-    transactionType: input.transactionType,
-    startDate: input.startDate,
-    endDate: input.endDate,
-    limit: input.limit,
-    offset: input.offset,
-  });
-  const { data = [], meta = {}, ...rest } = body;
-  return { data, meta: { ...rest, ...meta }, url };
+  return list("equibles", "/v1/congress/trades", input, "data");
 }

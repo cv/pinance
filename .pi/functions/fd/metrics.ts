@@ -11,7 +11,7 @@
  * @param input.report_period_lte - Only periods on or before this date, YYYY-MM-DD.
  */
 async function metrics(
-  { fd: { request } },
+  { pinance: { list } },
   input: {
     ticker: string;
     period?: "annual" | "quarterly" | "ttm";
@@ -22,17 +22,17 @@ async function metrics(
     report_period_lt?: string;
     report_period_lte?: string;
   },
-): Promise<{ data: { [key: string]: PitJsonValue }[]; url: string; count: number }> {
-  const { data, url } = await request("/financial-metrics/", {
-    ticker: input.ticker,
-    period: input.period ?? "ttm",
-    limit: input.limit ?? 4,
-    report_period: input.report_period,
-    report_period_gt: input.report_period_gt,
-    report_period_gte: input.report_period_gte,
-    report_period_lt: input.report_period_lt,
-    report_period_lte: input.report_period_lte,
-  });
-  const rows = data.financial_metrics ?? [];
-  return { data: rows, url, count: rows.length };
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: { [key: string]: PitJsonValue }[];
+  url: string;
+  count: number;
+  meta?: { [key: string]: PitJsonValue };
+}> {
+  return list(
+    "financialdatasets",
+    "/financial-metrics/",
+    { ...input, period: input.period ?? "ttm", limit: input.limit ?? 4 },
+    "financial_metrics",
+  );
 }

@@ -5,13 +5,19 @@
  * @param input.period - "annual" (default) or "quarterly".
  */
 async function estimates(
-  { fd: { request } },
+  { pinance: { list } },
   input: { ticker: string; period?: "annual" | "quarterly" },
-): Promise<{ data: { [key: string]: PitJsonValue }[]; url: string; count: number }> {
-  const { data, url } = await request("/analyst-estimates/", {
-    ticker: input.ticker,
-    period: input.period ?? "annual",
-  });
-  const rows = data.analyst_estimates ?? [];
-  return { data: rows, url, count: rows.length };
+): Promise<{
+  provider: "financialdatasets" | "equibles";
+  data: { [key: string]: PitJsonValue }[];
+  url: string;
+  count: number;
+  meta?: { [key: string]: PitJsonValue };
+}> {
+  return list(
+    "financialdatasets",
+    "/analyst-estimates/",
+    { ticker: input.ticker, period: input.period ?? "annual" },
+    "analyst_estimates",
+  );
 }
