@@ -2,7 +2,8 @@ name: pi Assistant
 
 # Mention @pi in an issue, pull request, or comment to run a durable pi agent with pit
 # (https://github.com/cv/pi-action, https://github.com/cv/pit). With trust_project, pit loads the
-# Financial Datasets functions in .pi/functions/fd and pi-action loads the skills in .pi/skills.
+# data functions in .pi/functions (fd.*, eq.*, market.*) and pi-action loads the skills in .pi/skills.
+# Only @cv can start pi.
 #
 # Repository secrets:
 #   NVIDIA_API_KEY              key for the NVIDIA inference endpoint (the model below)
@@ -23,11 +24,13 @@ on:
 
 jobs:
   pi-response:
+    # Only @cv, so nobody else's run gets the secrets. pi-action checks allowed_users too.
     # @pi requests, /answer replies, and edits of pi's questions (not other edited comments).
     if: >-
+      github.actor == 'cv' && (
       (github.event.action == 'edited' && contains(github.event.comment.body, '<!-- pi-action:question'))
       || (github.event.action != 'edited' && (contains(github.event.comment.body || github.event.issue.body || github.event.pull_request.body || '', '@pi')
-      || contains(github.event.comment.body || '', '/answer')))
+      || contains(github.event.comment.body || '', '/answer'))))
     runs-on: ubuntu-latest
     # One run per issue or pull request at a time.
     concurrency:
@@ -61,8 +64,9 @@ jobs:
           thinking_level: high
           extensions: |
             github:cv/pit#v0.37.0
-          # Only OWNER and MEMBER can start pi (the default allowed_associations), so the
-          # repository's .pi/functions and .pi/skills are code we already run.
+          # Only @cv can start pi, so the repository's .pi/functions and .pi/skills are code we
+          # already run.
+          allowed_users: cv
           trust_project: true
           worktree_snapshot_exclude: .env*
         env:
