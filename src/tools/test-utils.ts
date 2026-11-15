@@ -1,3 +1,6 @@
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { vi } from "vitest";
 
 export interface ToolResult {
@@ -76,4 +79,16 @@ export function getResultType(result: ToolResult): string {
 		throw new Error("Result has no content");
 	}
 	return content.type;
+}
+
+/**
+ * Pins which provider keys look configured: the environment gets exactly these values, and `.env`
+ * is read from an empty temporary directory, so the repository's own `.env` stays out of the test.
+ * Undo with vi.unstubAllEnvs() and vi.restoreAllMocks().
+ */
+export function useProviders(options: { fd?: string; eq?: string; prefer?: string } = {}): void {
+	vi.stubEnv("FINANCIAL_DATASETS_API_KEY", options.fd ?? "");
+	vi.stubEnv("EQUIBLES_API_KEY", options.eq ?? "");
+	vi.stubEnv("PINANCE_PROVIDER", options.prefer ?? "");
+	vi.spyOn(process, "cwd").mockReturnValue(mkdtempSync(join(tmpdir(), "pinance-providers-")));
 }

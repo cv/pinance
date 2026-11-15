@@ -2,6 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import type { ArrayResponse, SnapshotResponse } from "../api.js";
 import { DateRangeParams, PriceIntervalParams, TickerOnlyParams, TickerParam } from "../schemas.js";
+import * as equibles from "../equibles.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
 
 const pricesParams = Type.Object({
@@ -20,6 +21,7 @@ export function registerPriceTools(pi: ExtensionAPI): void {
 		endpoint: "/prices/snapshot/",
 		buildParams: (params) => ({ ticker: params.ticker }),
 		extractData: (response) => response.snapshot ?? {},
+		equibles: (params, signal) => equibles.latestPrice(params.ticker, signal),
 	});
 
 	registerArrayTool<typeof pricesParams, ArrayResponse<"prices">>(pi, {
@@ -37,5 +39,6 @@ export function registerPriceTools(pi: ExtensionAPI): void {
 			end_date: params.end_date,
 		}),
 		extractData: (response) => response.prices ?? [],
+		equibles: (params, signal) => equibles.prices(params, signal),
 	});
 }

@@ -2,6 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import type { ArrayResponse } from "../api.js";
 import { FilingDateFilterParams, TickerParam } from "../schemas.js";
+import * as equibles from "../equibles.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
 const insiderTradesParams = Type.Object({
@@ -35,5 +36,7 @@ export function registerInsiderTradesTools(pi: ExtensionAPI): void {
 			filing_date_lte: params.filing_date_lte,
 		}),
 		extractData: (response) => response.insider_trades ?? [],
+		// Equibles filters by transaction date rather than filing date.
+		equibles: (params, signal) => equibles.insiderTransactions(params, signal),
 	});
 }

@@ -123,9 +123,18 @@ describe("tool helpers", () => {
 			{} as never,
 		);
 
-		expect(result.structuredContent).toEqual({ url: "https://example.test", count: 1, data: rows });
+		expect(result.structuredContent).toEqual({
+			url: "https://example.test",
+			provider: "financialdatasets",
+			count: 1,
+			data: rows,
+		});
 		expect(Value.Check(ToolOutputSchema, result.structuredContent)).toBe(true);
-		expect(result.details).toEqual({ url: "https://example.test", count: 1 });
+		expect(result.details).toEqual({
+			url: "https://example.test",
+			provider: "financialdatasets",
+			count: 1,
+		});
 	});
 
 	it("adds counts to array tool details", async () => {

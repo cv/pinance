@@ -3,6 +3,7 @@ import { Type } from "typebox";
 import type { ArrayResponse } from "../api.js";
 import { formatItemsDescription, ITEMS_10K_MAP, ITEMS_10Q_MAP } from "../constants.js";
 import { TickerParam } from "../schemas.js";
+import * as equibles from "../equibles.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
 
 const filingsParams = Type.Object({
@@ -75,6 +76,7 @@ export function registerFilingsTools(pi: ExtensionAPI): void {
 			limit: params.limit ?? 10,
 		}),
 		extractData: (response) => response.filings ?? [],
+		equibles: (params, signal) => equibles.filings(params, signal),
 	});
 
 	registerSimpleTool<typeof filing10KItemsParams, Record<string, unknown>>(pi, {

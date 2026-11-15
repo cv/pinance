@@ -2,7 +2,14 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiKeyMissingError, ApiRequestError, callApi, resolveApiKey } from "./api.js";
+import {
+	ApiKeyMissingError,
+	ApiRequestError,
+	callApi,
+	callEquibles,
+	equiblesTicker,
+	resolveApiKey,
+} from "./api.js";
 
 function withTempDir(envFile?: string): string {
 	const dir = mkdtempSync(join(tmpdir(), "pinance-"));
@@ -208,5 +215,77 @@ describe("callApi", () => {
 			"https://api.financialdatasets.ai/prices/snapshot/?ticker=AAPL",
 			expect.any(Object),
 		);
+	});
+});
+
+describe("callEquibles", () => {
+	beforeEach(() => {
+		vi.stubEnv("EQUIBLES_API_KEY", "eq_test");
+	});
+
+	afterEach(() => {
+		vi.unstubAllEnvs();
+		vi.restoreAllMocks();
+	});
+
+	it("sends the key as a Bearer header, never in the URL", async () => {
+		const mockFetch = vi
+			.spyOn(globalThis, "fetch")
+			.mockResolvedValue(new Response(JSON.stringify({ data: [1] }), { status: 200 }));
+
+		const result = await callEquibles("/v1/stocks/AAPL/prices", {
+			startDate: "2026-01-01",
+			skipped: undefined,
+			types: ["a", "b"],
+			flag: true,
+		});
+
+		const expected =
+			"https://api.equibles.com/v1/stocks/AAPL/prices?startDate=2026-01-01&types=a&types=b&flag=true";
+		expect(result).toEqual({ data: { data: [1] }, url: expected });
+		expect(mockFetch).toHaveBeenCalledWith(expected, {
+			headers: { Authorization: "Bearer eq_test", Accept: "application/json" },
+			signal: null,
+		});
+		expect(expected).not.toContain("eq_test");
+	});
+
+	it("names EQUIBLES_API_KEY when the key is missing", async () => {
+		vi.stubEnv("EQUIBLES_API_KEY", "");
+		vi.spyOn(process, "cwd").mockReturnValue(withTempDir());
+		await expect(callEquibles("/v1/x", {})).rejects.toThrow(ApiKeyMissingError);
+		await expect(callEquibles("/v1/x", {})).rejects.toThrow(
+			/EQUIBLES_API_KEY[\s\S]*equibles\.com[\s\S]*Financial Datasets instead/,
+		);
+	});
+
+	it("reports Equibles' nested error and the daily allowance", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response(
+				JSON.stringify({ error: { code: "rate_limited", message: "Daily limit reached" } }),
+				{
+					status: 429,
+					statusText: "Too Many Requests",
+				},
+			),
+		);
+		const error = await callEquibles("/v1/x", {}).catch((e: unknown) => e);
+		expect(error).toBeInstanceOf(ApiRequestError);
+		expect((error as ApiRequestError).provider).toBe("equibles");
+		expect((error as Error).message).toContain("Equibles counts requests per day");
+		expect((error as Error).message).toContain("API response: rate_limited: Daily limit reached");
+	});
+
+	it("names the provider in 401 and 5xx errors", () => {
+		expect(new ApiRequestError(401, "Unauthorized", "u", "", "equibles").message).toContain(
+			"Check your EQUIBLES_API_KEY",
+		);
+		expect(new ApiRequestError(503, "Unavailable", "u", "", "equibles").message).toContain(
+			"The Equibles API is experiencing issues",
+		);
+	});
+
+	it("encodes tickers for paths", () => {
+		expect(equiblesTicker(" xetr:sie ")).toBe("XETR%3ASIE");
 	});
 });

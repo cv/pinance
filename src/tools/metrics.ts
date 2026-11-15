@@ -2,6 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import type { ArrayResponse, SnapshotResponse } from "../api.js";
 import { PeriodType, ReportPeriodFilterParams, TickerOnlyParams, TickerParam } from "../schemas.js";
+import * as equibles from "../equibles.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
 
 const metricsParams = Type.Object({
@@ -32,6 +33,7 @@ export function registerMetricsTools(pi: ExtensionAPI): void {
 		endpoint: "/financial-metrics/snapshot/",
 		buildParams: (params) => ({ ticker: params.ticker }),
 		extractData: (response) => response.snapshot ?? {},
+		equibles: (params, signal) => equibles.valuationMultiples(params.ticker, signal),
 	});
 
 	registerArrayTool<typeof metricsParams, ArrayResponse<"financial_metrics">>(pi, {
@@ -52,5 +54,8 @@ export function registerMetricsTools(pi: ExtensionAPI): void {
 			report_period_lte: params.report_period_lte,
 		}),
 		extractData: (response) => response.financial_metrics ?? [],
+		// Equibles has quarterly valuation multiples; period and report_period filters do not apply.
+		equibles: (params, signal) =>
+			equibles.valuationHistory(params.ticker, params.limit ?? 4, signal),
 	});
 }

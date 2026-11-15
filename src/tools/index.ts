@@ -1,4 +1,5 @@
 export { registerCryptoTools } from "./crypto.js";
+export { registerEquiblesTools } from "./equibles.js";
 export { registerEstimatesTools } from "./estimates.js";
 export { registerFilingsTools } from "./filings.js";
 export { registerFundamentalsTools } from "./fundamentals.js";

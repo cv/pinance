@@ -1,24 +1,17 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { parseEnv } from "node:util";
+import { PROVIDERS, type ProviderId, readSetting } from "./providers.js";
 
 const BASE_URL = "https://api.financialdatasets.ai";
-const API_KEY_NAME = "FINANCIAL_DATASETS_API_KEY";
+const EQUIBLES_BASE_URL = "https://api.equibles.com";
 
 /**
- * The API key from the environment, else from `.env` in `cwd` (where pi runs). The pit function
- * `fd.request` resolves the key the same way.
+ * The provider's API key from the environment, else from `.env` in `cwd` (where pi runs). The pit
+ * functions `fd.request` and `eq.request` resolve keys the same way.
  */
-export function resolveApiKey(cwd: string = process.cwd()): string | undefined {
-	const fromEnv = process.env[API_KEY_NAME];
-	if (fromEnv) {
-		return fromEnv;
-	}
-	try {
-		return parseEnv(readFileSync(join(cwd, ".env"), "utf8"))[API_KEY_NAME] || undefined;
-	} catch {
-		return undefined;
-	}
+export function resolveApiKey(
+	cwd: string = process.cwd(),
+	provider: ProviderId = "financialdatasets",
+): string | undefined {
+	return readSetting(PROVIDERS[provider].keyName, cwd);
 }
 
 export interface ApiResponse<T> {
@@ -32,19 +25,25 @@ export type ArrayResponse<K extends string> = { [P in K]: Record<string, unknown
 export type ObjectResponse<K extends string> = { [P in K]: Record<string, unknown> };
 
 export class ApiKeyMissingError extends Error {
-	constructor() {
+	constructor(provider: ProviderId = "financialdatasets") {
+		const { name, keyName, signup } = PROVIDERS[provider];
+		const other = PROVIDERS[provider === "financialdatasets" ? "equibles" : "financialdatasets"];
 		super(
-			"FINANCIAL_DATASETS_API_KEY environment variable is not set.\n\n" +
-				"To use pinance tools, you need an API key from Financial Datasets:\n" +
-				"1. Get your API key at https://financialdatasets.ai/\n" +
-				"2. Set it: export FINANCIAL_DATASETS_API_KEY=your_key_here\n" +
-				"   Or add it to a .env file in the directory where you run pi.",
+			`${keyName} environment variable is not set.\n\n` +
+				`To use pinance tools, you need an API key from ${name}:\n` +
+				`1. Get your API key at ${signup}\n` +
+				`2. Set it: export ${keyName}=your_key_here\n` +
+				"   Or add it to a .env file in the directory where you run pi.\n\n" +
+				`Most tools also work with ${other.name} instead (${other.keyName}).`,
 		);
 		this.name = "ApiKeyMissingError";
 	}
 }
 
-/** Financial Datasets errors are JSON like { error, message }; fall back to the first 500 characters. */
+/**
+ * Financial Datasets errors are JSON like { error, message }, Equibles errors like
+ * { error: { code, message } }; fall back to the first 500 characters.
+ */
 function describeErrorBody(body: string): string {
 	const text = body.trim();
 	if (!text) {
@@ -54,7 +53,13 @@ function describeErrorBody(body: string): string {
 		const parsed: unknown = JSON.parse(text);
 		if (parsed && typeof parsed === "object") {
 			const { error, message } = parsed as { error?: unknown; message?: unknown };
-			const parts = [error, message].filter((part) => typeof part === "string" && part);
+			const nested =
+				error && typeof error === "object"
+					? (error as { code?: unknown; message?: unknown })
+					: { code: error, message: undefined };
+			const parts = [nested.code, nested.message ?? message].filter(
+				(part) => typeof part === "string" && part,
+			);
 			if (parts.length > 0) {
 				return parts.join(": ");
 			}
@@ -69,23 +74,33 @@ export class ApiRequestError extends Error {
 	public readonly status: number;
 	public readonly statusText: string;
 	public readonly url: string;
+	public readonly provider: ProviderId;
 	/** The response body, so the API's own reason (such as "Crypto access restricted") reaches the user. */
 	public readonly body: string;
 
-	constructor(status: number, statusText: string, url: string, body = "") {
+	constructor(
+		status: number,
+		statusText: string,
+		url: string,
+		body = "",
+		provider: ProviderId = "financialdatasets",
+	) {
+		const { name, keyName } = PROVIDERS[provider];
 		let message = `API request failed: ${status} ${statusText}`;
 
 		if (status === 401) {
-			message += "\n\nYour API key appears to be invalid. Check your FINANCIAL_DATASETS_API_KEY.";
+			message += `\n\nYour API key appears to be invalid. Check your ${keyName}.`;
 		} else if (status === 403) {
 			message += "\n\nAccess denied. Your API key may not have access to this endpoint.";
 		} else if (status === 429) {
 			message +=
-				"\n\nRate limit exceeded. Please wait a moment before making more requests, or upgrade your plan at https://financialdatasets.ai/";
+				provider === "equibles"
+					? "\n\nRequest allowance used up. Equibles counts requests per day (resetting at 00:00 UTC); see https://equibles.com/pricing"
+					: "\n\nRate limit exceeded. Please wait a moment before making more requests, or upgrade your plan at https://financialdatasets.ai/";
 		} else if (status === 404) {
 			message += "\n\nData not found. The ticker symbol or requested data may not exist.";
 		} else if (status >= 500) {
-			message += "\n\nThe Financial Datasets API is experiencing issues. Please try again later.";
+			message += `\n\nThe ${name} API is experiencing issues. Please try again later.`;
 		}
 
 		const detail = describeErrorBody(body);
@@ -99,7 +114,69 @@ export class ApiRequestError extends Error {
 		this.status = status;
 		this.statusText = statusText;
 		this.url = url;
+		this.provider = provider;
 	}
+}
+
+type QueryParams = Record<string, string | number | boolean | string[] | undefined>;
+
+function appendParams(url: URL, params: QueryParams, upperCaseTicker: boolean): void {
+	for (const [key, rawValue] of Object.entries(params)) {
+		if (rawValue === undefined) {
+			continue;
+		}
+		const value =
+			upperCaseTicker && key === "ticker" && typeof rawValue === "string"
+				? rawValue.toUpperCase()
+				: rawValue;
+		for (const item of Array.isArray(value) ? value : [value]) {
+			url.searchParams.append(key, String(item));
+		}
+	}
+}
+
+/** A ticker for an Equibles path segment, such as "AAPL" or "XETR:SIE". */
+export function equiblesTicker(ticker: string): string {
+	return encodeURIComponent(ticker.trim().toUpperCase());
+}
+
+/**
+ * Calls the Equibles REST API (https://api.equibles.com/v1). The key goes in the Authorization
+ * header, never in the URL, because tool results and URLs end up in logs and session files.
+ */
+export async function callEquibles<T>(
+	path: string,
+	params: QueryParams,
+	signal?: AbortSignal,
+): Promise<ApiResponse<T>> {
+	const apiKey = resolveApiKey(process.cwd(), "equibles");
+	if (!apiKey) {
+		throw new ApiKeyMissingError("equibles");
+	}
+
+	const url = new URL(`${EQUIBLES_BASE_URL}${path}`);
+	appendParams(url, params, false);
+
+	const response = await fetch(url.toString(), {
+		headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+		signal: signal ?? null,
+	});
+
+	if (!response.ok) {
+		const body = await response.text().catch(() => "");
+		throw new ApiRequestError(
+			response.status,
+			response.statusText,
+			url.toString(),
+			body,
+			"equibles",
+		);
+	}
+
+	// The caller names the response shape; the API documents it.
+	// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+	const data = (await response.json()) as T;
+	return { data, url: url.toString() };
 }
 
 export async function callApi<T>(
@@ -113,23 +190,8 @@ export async function callApi<T>(
 	}
 
 	const url = new URL(`${BASE_URL}${endpoint}`);
-
-	for (const [key, rawValue] of Object.entries(params)) {
-		if (rawValue === undefined) {
-			continue;
-		}
-
-		// Normalize ticker to uppercase for consistent API calls
-		const value =
-			key === "ticker" && typeof rawValue === "string" ? rawValue.toUpperCase() : rawValue;
-		if (Array.isArray(value)) {
-			for (const item of value) {
-				url.searchParams.append(key, item);
-			}
-		} else {
-			url.searchParams.append(key, String(value));
-		}
-	}
+	// Normalize ticker to uppercase for consistent API calls
+	appendParams(url, params, true);
 
 	const response = await fetch(url.toString(), {
 		headers: {

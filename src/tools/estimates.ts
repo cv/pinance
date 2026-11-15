@@ -2,6 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import type { ArrayResponse } from "../api.js";
 import { PeriodTypeNoTtm, TickerParam } from "../schemas.js";
+import * as equibles from "../equibles.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
 const estimatesParams = Type.Object({
@@ -22,5 +23,6 @@ export function registerEstimatesTools(pi: ExtensionAPI): void {
 			period: params.period ?? "annual",
 		}),
 		extractData: (response) => response.analyst_estimates ?? [],
+		equibles: (params, signal) => equibles.analystEstimates(params.ticker, signal),
 	});
 }

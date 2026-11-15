@@ -2,6 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import type { ArrayResponse } from "../api.js";
 import { PeriodTypeNoTtm, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
+import * as equibles from "../equibles.js";
 import { registerArrayTool } from "../tool-helpers.js";
 
 export const SEGMENTS_ENDPOINT = "/financials/income-statements/segments/";
@@ -47,5 +48,7 @@ export function registerSegmentsTools(pi: ExtensionAPI): void {
 		}),
 		extractData: (response) =>
 			response.income_statement_segments ?? response.segmented_financials ?? [],
+		// Equibles reports segments, geographies, and products for every fiscal year in one call.
+		equibles: (params, signal) => equibles.revenueBreakdown(params.ticker, signal),
 	});
 }

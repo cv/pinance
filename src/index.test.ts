@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import pinance, { FINANCIAL_RESEARCH_PROMPT } from "./index.js";
+import pinance, { FINANCIAL_RESEARCH_PROMPT, providerPromptLine } from "./index.js";
 
 // Mock all the tool registration functions
 vi.mock("./tools/index.js", () => ({
 	registerCryptoTools: vi.fn(),
+	registerEquiblesTools: vi.fn(),
 	registerEstimatesTools: vi.fn(),
 	registerFilingsTools: vi.fn(),
 	registerFundamentalsTools: vi.fn(),
@@ -16,6 +17,7 @@ vi.mock("./tools/index.js", () => ({
 
 import {
 	registerCryptoTools,
+	registerEquiblesTools,
 	registerEstimatesTools,
 	registerFilingsTools,
 	registerFundamentalsTools,
@@ -60,6 +62,7 @@ describe("pinance extension", () => {
 		pinance(mockPi as never);
 
 		expect(registerCryptoTools).toHaveBeenCalledWith(mockPi);
+		expect(registerEquiblesTools).toHaveBeenCalledWith(mockPi);
 		expect(registerEstimatesTools).toHaveBeenCalledWith(mockPi);
 		expect(registerFilingsTools).toHaveBeenCalledWith(mockPi);
 		expect(registerFundamentalsTools).toHaveBeenCalledWith(mockPi);
@@ -76,6 +79,7 @@ describe("pinance extension", () => {
 		pinance(mockPi as never);
 
 		expect(registerCryptoTools).toHaveBeenCalledTimes(1);
+		expect(registerEquiblesTools).toHaveBeenCalledTimes(1);
 		expect(registerEstimatesTools).toHaveBeenCalledTimes(1);
 		expect(registerFilingsTools).toHaveBeenCalledTimes(1);
 		expect(registerFundamentalsTools).toHaveBeenCalledTimes(1);
@@ -102,15 +106,39 @@ describe("pinance extension", () => {
 		const handler = mockPi.handlers.get("before_agent_start");
 		expect(handler).toBeDefined();
 
-		const event = { systemPromptOptions: { sections: { existing: "Keep me" } } };
+		const event: { systemPromptOptions: { sections: Record<string, string> } } = {
+			systemPromptOptions: { sections: { existing: "Keep me" } },
+		};
 		const result = await handler?.(event);
 
 		expect(result).toBeUndefined();
 		expect(event.systemPromptOptions.sections.existing).toBe("Keep me");
-		expect(event.systemPromptOptions.sections).toHaveProperty(
-			"financial_research",
-			FINANCIAL_RESEARCH_PROMPT,
-		);
+		const section = event.systemPromptOptions.sections.financial_research;
+		expect(section).toContain(FINANCIAL_RESEARCH_PROMPT);
+		expect(section).toMatch(/Data provider: |No data provider key is set/);
 		expect(FINANCIAL_RESEARCH_PROMPT).toContain("Sources:");
+	});
+});
+
+describe("providerPromptLine", () => {
+	it("names the active provider and the alternatives", () => {
+		expect(providerPromptLine({ configured: [], preferred: undefined })).toContain(
+			"No data provider key is set",
+		);
+		expect(providerPromptLine({ configured: ["equibles"], preferred: undefined })).toBe(
+			'Data provider: Equibles. Shared tools use it; tools marked "Needs" another provider fail without that key.',
+		);
+		expect(
+			providerPromptLine({ configured: ["financialdatasets", "equibles"], preferred: undefined }),
+		).toContain(
+			'Data provider: Financial Datasets. Shared tools use it; tools marked "Needs" another provider fail without that key. Equibles is also configured; set PINANCE_PROVIDER to switch.',
+		);
+		expect(
+			providerPromptLine({
+				configured: ["financialdatasets"],
+				preferred: undefined,
+				invalidPreference: "yahoo",
+			}),
+		).toContain("PINANCE_PROVIDER=yahoo names no provider");
 	});
 });
