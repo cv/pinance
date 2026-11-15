@@ -1,5 +1,5 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { Type } from "@sinclair/typebox";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
 import type { ArrayResponse } from "../api.js";
 import { formatItemsDescription, ITEMS_10K_MAP, ITEMS_10Q_MAP } from "../constants.js";
 import { TickerParam } from "../schemas.js";
@@ -8,7 +8,7 @@ import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
 const filingsParams = Type.Object({
 	ticker: TickerParam,
 	filing_type: Type.Optional(
-		Type.Union([Type.Literal("10-K"), Type.Literal("10-Q"), Type.Literal("8-K")], {
+		Type.Enum(["10-K", "10-Q", "8-K"], {
 			description:
 				"Filing type: '10-K' for annual, '10-Q' for quarterly, '8-K' for current reports",
 		}),

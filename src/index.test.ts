@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import pinance from "./index.js";
+import pinance, { FINANCIAL_RESEARCH_PROMPT } from "./index.js";
 
 // Mock all the tool registration functions
 vi.mock("./tools/index.js", () => ({
@@ -27,8 +27,8 @@ import {
 } from "./tools/index.js";
 
 type BeforeAgentStartHandler = (event: {
-	systemPrompt: string;
-}) => Promise<{ systemPrompt: string }>;
+	systemPromptOptions: { sections: Record<string, string> };
+}) => unknown;
 
 interface MockPi {
 	handlers: Map<string, BeforeAgentStartHandler>;
@@ -94,7 +94,7 @@ describe("pinance extension", () => {
 		expect(mockPi.on).toHaveBeenCalledWith("before_agent_start", expect.any(Function));
 	});
 
-	it("should append financial research guidance to the system prompt", async () => {
+	it("should add financial research guidance as a system prompt section", async () => {
 		const mockPi = createMockPi();
 
 		pinance(mockPi as never);
@@ -102,10 +102,15 @@ describe("pinance extension", () => {
 		const handler = mockPi.handlers.get("before_agent_start");
 		expect(handler).toBeDefined();
 
-		const result = await handler?.({ systemPrompt: "Base prompt\n" });
+		const event = { systemPromptOptions: { sections: { existing: "Keep me" } } };
+		const result = await handler?.(event);
 
-		expect(result?.systemPrompt).toContain("Base prompt");
-		expect(result?.systemPrompt).toContain("Financial Research Guidelines");
-		expect(result?.systemPrompt).toContain("Sources:");
+		expect(result).toBeUndefined();
+		expect(event.systemPromptOptions.sections.existing).toBe("Keep me");
+		expect(event.systemPromptOptions.sections).toHaveProperty(
+			"financial_research",
+			FINANCIAL_RESEARCH_PROMPT,
+		);
+		expect(FINANCIAL_RESEARCH_PROMPT).toContain("Sources:");
 	});
 });

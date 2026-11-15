@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import {
 	registerCryptoTools,
 	registerEstimatesTools,
@@ -11,8 +11,8 @@ import {
 	registerSegmentsTools,
 } from "./tools/index.js";
 
-const FINANCIAL_RESEARCH_PROMPT = `
-## Financial Research Guidelines
+/** Rendered by pi as a `<financial_research>` section of the system prompt. */
+export const FINANCIAL_RESEARCH_PROMPT = `Under pit, the same data is available as the \`fd.*\` saved functions (such as \`fd.prices\` and \`fd.financialStatements\`). Fetch independent data in one program with Promise.all and return only the fields you need; each result has a \`url\` to cite.
 
 When answering financial questions using the pinance tools:
 
@@ -39,8 +39,7 @@ Research Progress:
 - [x] Step 1: Parsed query - AAPL, MSFT, GOOGL operating margins
 - [x] Step 2: Fetched all three income statements
 - [x] Step 3: Calculated margins, ready to respond
-\`\`\`
-`;
+\`\`\``;
 
 export default function pinance(pi: ExtensionAPI): void {
 	// Register all financial data tools
@@ -54,10 +53,9 @@ export default function pinance(pi: ExtensionAPI): void {
 	registerPriceTools(pi);
 	registerSegmentsTools(pi);
 
-	// Inject financial research guidelines into system prompt
-	pi.on("before_agent_start", async (event) => {
-		return {
-			systemPrompt: event.systemPrompt + FINANCIAL_RESEARCH_PROMPT,
-		};
+	// Add the research guidelines as a structured prompt section. Pi diffs sections against what the
+	// model already has, so this costs one patch per session instead of a new prompt every run.
+	pi.on("before_agent_start", (event) => {
+		event.systemPromptOptions.sections.financial_research = FINANCIAL_RESEARCH_PROMPT;
 	});
 }

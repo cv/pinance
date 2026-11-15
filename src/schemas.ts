@@ -1,30 +1,21 @@
-import { type Static, Type } from "@sinclair/typebox";
+import { type Static, Type } from "typebox";
+
+// String enums are plain JSON Schema `enum`s ({ type: "string", enum: [...] }), which every
+// provider accepts; unions of literals become `anyOf`, which some providers reject.
 
 // Common interval types for price data
-export const IntervalType = Type.Union(
-	[
-		Type.Literal("minute"),
-		Type.Literal("day"),
-		Type.Literal("week"),
-		Type.Literal("month"),
-		Type.Literal("year"),
-	],
-	{
-		description: "Time interval for price data (default: 'day')",
-		default: "day",
-	},
-);
+export const IntervalType = Type.Enum(["minute", "day", "week", "month", "year"], {
+	description: "Time interval for price data (default: 'day')",
+	default: "day",
+});
 
 // Common period types for financial data
-export const PeriodType = Type.Union(
-	[Type.Literal("annual"), Type.Literal("quarterly"), Type.Literal("ttm")],
-	{
-		description:
-			"Reporting period: 'annual' for yearly, 'quarterly' for quarterly, 'ttm' for trailing twelve months",
-	},
-);
+export const PeriodType = Type.Enum(["annual", "quarterly", "ttm"], {
+	description:
+		"Reporting period: 'annual' for yearly, 'quarterly' for quarterly, 'ttm' for trailing twelve months",
+});
 
-export const PeriodTypeNoTtm = Type.Union([Type.Literal("annual"), Type.Literal("quarterly")], {
+export const PeriodTypeNoTtm = Type.Enum(["annual", "quarterly"], {
 	description: "Reporting period: 'annual' or 'quarterly'",
 });
 
