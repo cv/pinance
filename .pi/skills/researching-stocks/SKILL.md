@@ -58,7 +58,7 @@ Call tools. Related skills:
 - `analyzing-financials` - Statements, metrics, estimates
 - `reading-sec-filings` - 10-K, 10-Q, 8-K content
 - `fetching-prices` - Stock and crypto prices
-- `tracking-signals` - Insider trades, news
+- `tracking-signals` - Insider trades, news (plus congressional trades, 13F holders, and short interest through `eq.*`)
 
 ## Step 4: Validate
 

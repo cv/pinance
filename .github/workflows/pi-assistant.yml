@@ -7,6 +7,7 @@ name: pi Assistant
 # Repository secrets:
 #   ANTHROPIC_API_KEY           model provider key (or change provider/model below)
 #   FINANCIAL_DATASETS_API_KEY  read by fd.request in the shell; never printed by the functions
+#   EQUIBLES_API_KEY            optional, read by eq.request the same way
 
 on:
   issues:
@@ -51,3 +52,4 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FINANCIAL_DATASETS_API_KEY: ${{ secrets.FINANCIAL_DATASETS_API_KEY }}
+          EQUIBLES_API_KEY: ${{ secrets.EQUIBLES_API_KEY }}

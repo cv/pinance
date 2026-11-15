@@ -1,6 +1,6 @@
 # Equibles as an alternative data source
 
-Investigated 2026-11-15 from <https://equibles.com/docs/api> (the docs serve Markdown when `.md` is appended to a page URL; the index is <https://equibles.com/docs/llms.txt>). We have no Equibles key yet, so the live check reached only the auth error.
+Investigated 2026-11-15 from <https://equibles.com/docs/api> (the docs serve Markdown when `.md` is appended to a page URL; the index is <https://equibles.com/docs/llms.txt>). The `eq.*` functions below were then tested live with a free-plan key.
 
 ## Summary
 
@@ -55,9 +55,19 @@ Requests pause at the cap instead of incurring overage charges. With 100 request
 - Macro and markets: FRED series, CFTC positioning, CBOE VIX and put/call ratios, index constituents, IPO pipeline, FDA calendar
 - International listings (Europe, China, Hong Kong, Japan, Canada) through `/v1/stocks/{exchange}/{ticker}/…`, with partial REST coverage
 
-## Suggested integration
+## Integration
 
-1. Create a free key and store it as `EQUIBLES_API_KEY` (in `.env` locally, as a repository secret for pi-action).
-2. Add `.pi/functions/eq/request.ts` modeled on `fd/request.ts`: resolve the key in the shell and send `Authorization: Bearer` with `curl -H @-`, so the key never enters the sandbox; return `{ data, meta, url }`. Never use `?api_key=`, because pi-action stores tool output and URLs in public thread refs.
-3. Add wrappers only for the gaps FD has: `eq.earningsCall`, `eq.institutionalHolders`, `eq.shortInterest`, `eq.congressTrades`, `eq.searchFilings`. Keep `fd.*` for news, crypto, and filing items.
-4. Mention the `eq.*` functions in the relevant skills (`tracking-signals`, `reading-sec-filings`).
+Equibles runs next to Financial Datasets as pit project functions in [`.pi/functions/eq/`](../.pi/functions/eq/), covering only what FD lacks. `fd.*` remains the source for news, crypto, and filing items.
+
+| Function | Endpoint |
+|---|---|
+| `eq.earningsCall({ ticker, fiscalYear, fiscalQuarter })` | `GET /v1/stocks/{ticker}/earnings-calls/{fiscalYear}/{fiscalQuarter}/speakers` |
+| `eq.institutionalHolders({ ticker })` | `GET /v1/stocks/{ticker}/institutional-holders` |
+| `eq.shortInterest({ ticker })` | `GET /v1/stocks/{ticker}/short-interest` |
+| `eq.congressTrades({ ticker \| memberId })` | `GET /v1/congress/trades` |
+| `eq.searchFilings({ query, ticker? })` | `GET /v1/stocks/{ticker}/filings/search` or `GET /v1/filings/search` |
+| `eq.request(path, params)` | any other `/v1` endpoint |
+
+Each returns `{ data, meta, url }`: the rows, the paging and context fields (such as `hasMore`, `totalTurnCount`, or `reportDate`), and the URL to cite.
+
+`eq.request` reads `EQUIBLES_API_KEY` from the environment or `.env` in the shell and sends it as `Authorization: Bearer` with `curl -H @-`. It refuses `api_key` query parameters, because pi-action stores tool output and URLs in public thread refs. The free plan allows 100 requests a day, shared with the MCP server, and 4xx answers count too, so check parameters against the docs before calling.

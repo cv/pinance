@@ -16,6 +16,10 @@ description: Extracts content from SEC filings (10-K, 10-Q, 8-K) via Financial D
 
 Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
 
+With `EQUIBLES_API_KEY` set, the Equibles functions (`{ data, meta, url }`) add:
+- `eq.searchFilings({ query, ticker? })`: keyword and semantic search over filings and transcripts since 2000, with deep links to the passage
+- `eq.earningsCall({ ticker, fiscalYear, fiscalQuarter })`: speaker-labelled earnings call transcript
+
 ## 10-K Items
 
 Use `item` parameter with array of item IDs:

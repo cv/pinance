@@ -79,9 +79,11 @@ async ({ fd: { metricsSnapshot } }) => {
 
 `fd.request` reads `FINANCIAL_DATASETS_API_KEY` from the environment or `.env` in the shell and sends it with `curl`, so the key never enters the sandbox or a result.
 
+[Equibles](https://equibles.com/docs/api) functions in [`.pi/functions/eq/`](.pi/functions/eq/) add data Financial Datasets lacks: `eq.earningsCall` (transcripts), `eq.institutionalHolders` (13F), `eq.shortInterest`, `eq.congressTrades`, `eq.searchFilings` (full-text and semantic search), and `eq.request`. They need `EQUIBLES_API_KEY` (a free key allows 100 requests a day).
+
 ### On GitHub with pi-action
 
-[`.github/workflows/pi-assistant.yml`](.github/workflows/pi-assistant.yml) runs [pi-action](https://github.com/cv/pi-action) with pit when an owner or member mentions `@pi` in an issue or pull request. pi-action does not load the tools of plain pi extensions, so it uses the `fd.*` functions and the skills (`trust_project: true`). Add the repository secrets `ANTHROPIC_API_KEY` and `FINANCIAL_DATASETS_API_KEY`. pi-action stores tool output in `refs/pi/threads/*`, which anyone who can read the repository can read, so never print the key.
+[`.github/workflows/pi-assistant.yml`](.github/workflows/pi-assistant.yml) runs [pi-action](https://github.com/cv/pi-action) with pit when an owner or member mentions `@pi` in an issue or pull request. pi-action does not load the tools of plain pi extensions, so it uses the `fd.*` functions and the skills (`trust_project: true`). Add the repository secrets `ANTHROPIC_API_KEY` and `FINANCIAL_DATASETS_API_KEY`, and optionally `EQUIBLES_API_KEY`. pi-action stores tool output in `refs/pi/threads/*`, which anyone who can read the repository can read, so never print the key.
 
 ## Example Queries
 

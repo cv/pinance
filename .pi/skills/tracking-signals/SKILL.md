@@ -14,6 +14,11 @@ description: Retrieves insider trading data and company news via Financial Datas
 
 Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
 
+With `EQUIBLES_API_KEY` set, the Equibles functions (`{ data, meta, url }`) add:
+- `eq.congressTrades({ ticker })`: trades disclosed by members of Congress
+- `eq.institutionalHolders({ ticker })`: largest 13F holders, with holder type and style
+- `eq.shortInterest({ ticker })`: FINRA short interest and days to cover
+
 ## Parameters
 
 **Insider trades:**
