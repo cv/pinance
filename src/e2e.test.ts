@@ -6,16 +6,17 @@
  * - plain: `pi --no-extensions -e ./src/index.ts`, so only this extension's tools exist and the model
  *   calls them by name, whatever extensions the user has installed globally.
  * - pit: `pi -e ./src/index.ts` with the user's global extensions. pit hides tools behind a single
- *   `typescript` tool, so these cases check that the model called the project's `fd.*` functions
- *   (.pi/functions/fd) from a program and cited https://api.financialdatasets.ai URLs. They are
- *   skipped when pit is not installed in the user's pi settings.
+ *   `typescript` tool, so these cases check that the model called the project's functions
+ *   (.pi/functions: fd.*, or the provider-neutral market.*) from a program and cited
+ *   https://api.financialdatasets.ai URLs. They are skipped when pit is not installed in the
+ *   user's pi settings.
  *
  * Provider cases (skipped without EQUIBLES_API_KEY; Equibles' free plan allows 100 requests a day,
  * and these cases use about six):
  * - PINANCE_PROVIDER=equibles with both keys: shared tools answer from Equibles.
  * - Equibles only: FINANCIAL_DATASETS_API_KEY="" in a temp dir without .env, so Financial
  *   Datasets-only tools are not offered and Equibles-only tools are.
- * - pit with PINANCE_PROVIDER=equibles: programs use eq.* and cite https://api.equibles.com URLs.
+ * - pit with PINANCE_PROVIDER=equibles: programs use eq.* or market.* and cite https://api.equibles.com URLs.
  * The Financial Datasets cases pin PINANCE_PROVIDER=financialdatasets, whatever the shell sets.
  *
  * Run with: npm run test:e2e (needs FINANCIAL_DATASETS_API_KEY and, for the provider cases,
@@ -137,6 +138,9 @@ interface AgentMessage {
 	isError?: boolean;
 	toolsAdded?: { name?: string }[];
 	toolsRemoved?: { name?: string }[];
+	/** Set on assistant messages; "error" when the model call itself failed. */
+	stopReason?: string;
+	errorMessage?: string;
 }
 
 interface ResultFields {
@@ -200,6 +204,12 @@ const parsePiJson = (stdout: string): PiResult => {
 	}
 	if (!messages) {
 		throw new Error(`pi printed no agent_end event:\n${stdout.slice(-2000)}`);
+	}
+	// A failed model call (an expired key, a provider outage) is not a test result: say so plainly.
+	// Only the last assistant message counts, since pi retries failed calls.
+	const last = messages.findLast((m) => m.role === "assistant");
+	if (last?.stopReason === "error") {
+		throw new Error(`pi's model call failed: ${last.errorMessage ?? "unknown error"}`);
 	}
 
 	const offered = new Set<string>();
@@ -359,6 +369,14 @@ const functionsUsed = (r: PiResult, ns: string): string[] => [
 ];
 
 const fdFunctionsUsed = (r: PiResult): string[] => functionsUsed(r, "fd");
+
+/** Functions a program used, qualified (`fd.priceSnapshot`, `market.quote`), across pinance's namespaces. */
+const qualifiedFunctionsUsed = (r: PiResult): string[] =>
+	["fd", "eq", "market", "pinance"].flatMap((ns) => functionsUsed(r, ns).map((n) => `${ns}.${n}`));
+
+/** True when a program used at least one of the given qualified functions. */
+const usedAnyOf = (r: PiResult, names: string[]): boolean =>
+	qualifiedFunctionsUsed(r).some((n) => names.includes(n));
 
 /** Suites run concurrently (each case is a separate pi process) with room for slow model turns. */
 const SUITE = { timeout: TEST_TIMEOUT_MS };
@@ -544,10 +562,12 @@ describe.skipIf(SKIP_E2E).concurrent("E2E: Segmented Revenues", SUITE, () => {
 });
 
 describe.skipIf(SKIP_PIT).concurrent("E2E: pit (fd.* project functions)", SUITE, () => {
-	it("fd.priceSnapshot answers a price question and cites the API URL", async ({ expect }) => {
+	it("fd.priceSnapshot or market.quote answers a price question and cites the API URL", async ({
+		expect,
+	}) => {
 		const r = await runPi("Get the current stock price of AAPL", "pit");
 		expectPitPrograms(expect, r);
-		expect(fdFunctionsUsed(r)).toEqual(expect.arrayContaining(["priceSnapshot"]));
+		expect(usedAnyOf(r, ["fd.priceSnapshot", "market.quote"])).toBe(true);
 		expect(r.resultText).toMatch(SOURCE_URL);
 		expect(r.output).toMatch(/\$\s?[\d,]+(\.\d+)?/);
 		expect(r.output).toMatch(
@@ -567,6 +587,19 @@ describe.skipIf(SKIP_PIT).concurrent("E2E: pit (fd.* project functions)", SUITE,
 		expect(programs).toMatch(/MSFT/i);
 		expect(r.output).toMatch(/https:\/\/api\.financialdatasets\.ai\/\S*ticker=AAPL/);
 		expect(r.output).toMatch(/https:\/\/api\.financialdatasets\.ai\/\S*ticker=MSFT/);
+	});
+
+	it("market.valuation or fd metrics compare P/E ratios with cited URLs", async ({ expect }) => {
+		const r = await runPi("Compare the current P/E ratios of Apple and Microsoft", "pit");
+		expectPitPrograms(expect, r);
+		expect(usedAnyOf(r, ["market.valuation", "fd.metricsSnapshot", "fd.metrics"])).toBe(true);
+		expect(r.output).toMatch(
+			/https:\/\/api\.financialdatasets\.ai\/financial-metrics\/\S*ticker=AAPL/,
+		);
+		expect(r.output).toMatch(
+			/https:\/\/api\.financialdatasets\.ai\/financial-metrics\/\S*ticker=MSFT/,
+		);
+		expect(r.output.toLowerCase()).toMatch(/p\/e|price.to.earnings/);
 	});
 
 	it("fd.cryptoPriceSnapshot surfaces the crypto 403 or returns a price", async ({ expect }) => {
@@ -629,13 +662,14 @@ describe.skipIf(SKIP_EQUIBLES).concurrent("E2E: Equibles only", SUITE, () => {
 });
 
 describe.skipIf(SKIP_PIT_EQUIBLES).concurrent("E2E: pit (eq.* project functions)", SUITE, () => {
-	it("eq.* answers a price question and cites Equibles URLs", async ({ expect }) => {
+	it("eq.* or market.* answers a price question and cites Equibles URLs", async ({ expect }) => {
 		const r = await runPi("Get the current stock price of AAPL", "pit", {
 			env: { PINANCE_PROVIDER: "equibles" },
 		});
 		expectPitPrograms(expect, r);
-		const eq = functionsUsed(r, "eq");
-		expect(eq.some((n) => n === "latestPrices" || n === "prices")).toBe(true);
+		expect(usedAnyOf(r, ["eq.latestPrices", "eq.prices", "market.quote", "market.prices"])).toBe(
+			true,
+		);
 		expect(fdFunctionsUsed(r)).toEqual([]);
 		expect(r.resultText).toMatch(EQUIBLES_URL);
 		expect(r.output).toMatch(/\$\s?[\d,]+(\.\d+)?/);
