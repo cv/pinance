@@ -44,12 +44,35 @@ export class ApiKeyMissingError extends Error {
 	}
 }
 
+/** Financial Datasets errors are JSON like { error, message }; fall back to the first 500 characters. */
+function describeErrorBody(body: string): string {
+	const text = body.trim();
+	if (!text) {
+		return "";
+	}
+	try {
+		const parsed: unknown = JSON.parse(text);
+		if (parsed && typeof parsed === "object") {
+			const { error, message } = parsed as { error?: unknown; message?: unknown };
+			const parts = [error, message].filter((part) => typeof part === "string" && part);
+			if (parts.length > 0) {
+				return parts.join(": ");
+			}
+		}
+	} catch {
+		// Not JSON: show the text itself.
+	}
+	return text.slice(0, 500);
+}
+
 export class ApiRequestError extends Error {
 	public readonly status: number;
 	public readonly statusText: string;
 	public readonly url: string;
+	/** The response body, so the API's own reason (such as "Crypto access restricted") reaches the user. */
+	public readonly body: string;
 
-	constructor(status: number, statusText: string, url: string) {
+	constructor(status: number, statusText: string, url: string, body = "") {
 		let message = `API request failed: ${status} ${statusText}`;
 
 		if (status === 401) {
@@ -65,8 +88,14 @@ export class ApiRequestError extends Error {
 			message += "\n\nThe Financial Datasets API is experiencing issues. Please try again later.";
 		}
 
+		const detail = describeErrorBody(body);
+		if (detail) {
+			message += `\n\nAPI response: ${detail}`;
+		}
+
 		super(message);
 		this.name = "ApiRequestError";
+		this.body = body;
 		this.status = status;
 		this.statusText = statusText;
 		this.url = url;
@@ -110,9 +139,12 @@ export async function callApi<T>(
 	});
 
 	if (!response.ok) {
-		throw new ApiRequestError(response.status, response.statusText, url.toString());
+		const body = await response.text().catch(() => "");
+		throw new ApiRequestError(response.status, response.statusText, url.toString(), body);
 	}
 
+	// The caller names the response shape; the API documents it.
+	// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 	const data = (await response.json()) as T;
 	return { data, url: url.toString() };
 }

@@ -117,6 +117,34 @@ describe("callApi", () => {
 		await expect(callApi("/test", {})).rejects.toThrow("Data not found");
 	});
 
+	it("should include the API's own reason from a JSON error body", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response(
+				JSON.stringify({
+					error: "Crypto access restricted",
+					message: "Crypto price data is only available to existing subscribers.",
+				}),
+				{ status: 403, statusText: "Forbidden" },
+			),
+		);
+
+		const error = await callApi("/crypto/prices/snapshot/", { ticker: "BTC-USD" }).catch((e) => e);
+		expect(error).toBeInstanceOf(ApiRequestError);
+		expect(error.message).toContain("Access denied");
+		expect(error.message).toContain(
+			"API response: Crypto access restricted: Crypto price data is only available to existing subscribers.",
+		);
+		expect(error.body).toContain("Crypto access restricted");
+	});
+
+	it("should include a plain-text error body", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValue(
+			new Response("upstream timeout", { status: 502, statusText: "Bad Gateway" }),
+		);
+
+		await expect(callApi("/test", {})).rejects.toThrow("API response: upstream timeout");
+	});
+
 	it("should provide helpful message for 401 errors", async () => {
 		vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			new Response("Unauthorized", { status: 401, statusText: "Unauthorized" }),
