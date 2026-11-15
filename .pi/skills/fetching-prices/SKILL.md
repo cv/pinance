@@ -7,15 +7,17 @@ description: Retrieves stock and cryptocurrency price data via Financial Dataset
 
 ## Tools
 
-| Tool | pit function | Returns |
-|------|--------------|---------|
-| `get_price_snapshot` | `fd.priceSnapshot` | Latest stock price, volume, OHLC |
-| `get_prices` | `fd.prices` | Historical stock prices |
-| `get_crypto_price_snapshot` | `fd.cryptoPriceSnapshot` | Latest crypto price |
-| `get_crypto_prices` | `fd.cryptoPrices` | Historical crypto prices |
-| `get_available_crypto_tickers` | `fd.cryptoTickers` | List of crypto pairs |
+| Tool | Financial Datasets | Equibles | Returns |
+|------|--------------------|----------|---------|
+| `get_price_snapshot` | `fd.priceSnapshot` | `eq.latestPrices({ tickers })` | Latest stock price, volume, OHLC |
+| `get_prices` | `fd.prices` | `eq.prices` | Historical stock prices |
+| `get_crypto_price_snapshot` | `fd.cryptoPriceSnapshot` | — | Latest crypto price |
+| `get_crypto_prices` | `fd.cryptoPrices` | — | Historical crypto prices |
+| `get_available_crypto_tickers` | `fd.cryptoTickers` | — | List of crypto pairs |
 
-Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
+Tools pick the provider that has a key (Financial Datasets or Equibles; `PINANCE_PROVIDER` decides when both do). A dash means that provider lacks the data.
+
+Under [pit](https://github.com/cv/pit), call the saved functions from one program: `fd.*` with a Financial Datasets key, `eq.*` with an Equibles key; `pinance.providers()` says which is active. For example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. `fd.*` returns `{ data, url }` (lists also `count`) and `eq.*` returns `{ data, meta, url }`; cite `url`.
 
 ## Parameters
 

@@ -7,18 +7,20 @@ description: Retrieves company financial statements, metrics, estimates, and seg
 
 ## Tools
 
-| Tool | pit function | Returns |
-|------|--------------|---------|
-| `get_income_statements` | `fd.financialStatements({ statement: "income" })` | Revenue, expenses, net income, EPS |
-| `get_balance_sheets` | `fd.financialStatements({ statement: "balance" })` | Assets, liabilities, equity |
-| `get_cash_flow_statements` | `fd.financialStatements({ statement: "cash_flow" })` | Operating/investing/financing flows |
-| `get_all_financial_statements` | `fd.financialStatements()` | All three above (more efficient) |
-| `get_financial_metrics_snapshot` | `fd.metricsSnapshot` | Current P/E, market cap, dividend yield |
-| `get_financial_metrics` | `fd.metrics` | Historical metrics over time |
-| `get_analyst_estimates` | `fd.estimates` | EPS forecasts |
-| `get_segmented_revenues` | `fd.segmentedRevenues` | Revenue by segment/geography |
+| Tool | Financial Datasets | Equibles | Returns |
+|------|--------------------|----------|---------|
+| `get_income_statements` | `fd.financialStatements({ statement: "income" })` | `eq.financialStatement({ statement: "income" })` | Revenue, expenses, net income, EPS |
+| `get_balance_sheets` | `fd.financialStatements({ statement: "balance" })` | `eq.financialStatement({ statement: "balance" })` | Assets, liabilities, equity |
+| `get_cash_flow_statements` | `fd.financialStatements({ statement: "cash_flow" })` | `eq.financialStatement({ statement: "cashflow" })` | Operating/investing/financing flows |
+| `get_all_financial_statements` | `fd.financialStatements()` | `eq.financialStatement × 3` | All three above (more efficient) |
+| `get_financial_metrics_snapshot` | `fd.metricsSnapshot` | `eq.valuationMultiples()` | Current P/E, market cap, dividend yield |
+| `get_financial_metrics` | `fd.metrics` | `eq.valuationMultiples({ history: true })` | Historical metrics over time |
+| `get_analyst_estimates` | `fd.estimates` | `eq.analystEstimates` | EPS forecasts |
+| `get_segmented_revenues` | `fd.segmentedRevenues` | `eq.revenueBreakdown` | Revenue by segment/geography |
 
-Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
+Tools pick the provider that has a key (Financial Datasets or Equibles; `PINANCE_PROVIDER` decides when both do). A dash means that provider lacks the data.
+
+Under [pit](https://github.com/cv/pit), call the saved functions from one program: `fd.*` with a Financial Datasets key, `eq.*` with an Equibles key; `pinance.providers()` says which is active. For example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. `fd.*` returns `{ data, url }` (lists also `count`) and `eq.*` returns `{ data, meta, url }`; cite `url`.
 
 ## Parameters
 

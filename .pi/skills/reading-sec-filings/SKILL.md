@@ -7,18 +7,20 @@ description: Extracts content from SEC filings (10-K, 10-Q, 8-K) via Financial D
 
 ## Tools
 
-| Tool | pit function | Use |
-|------|--------------|-----|
-| `get_filings` | `fd.filings` | List filings (metadata, accession numbers) |
-| `get_10K_filing_items` | `fd.filingItems({ filing_type: "10-K" })` | Extract sections from annual reports |
-| `get_10Q_filing_items` | `fd.filingItems({ filing_type: "10-Q" })` | Extract sections from quarterly reports |
-| `get_8K_filing_items` | `fd.filingItems({ filing_type: "8-K" })` | Extract content from current reports |
+| Tool | Financial Datasets | Equibles | Use |
+|------|--------------------|----------|-----|
+| `get_filings` | `fd.filings` | `eq.filings` | List filings (metadata, accession numbers) |
+| `get_10K_filing_items` | `fd.filingItems({ filing_type: "10-K" })` | `eq.searchFilings (passages)` | Extract sections from annual reports |
+| `get_10Q_filing_items` | `fd.filingItems({ filing_type: "10-Q" })` | `eq.searchFilings (passages)` | Extract sections from quarterly reports |
+| `get_8K_filing_items` | `fd.filingItems({ filing_type: "8-K" })` | `eq.filings + eq.searchFilings` | Extract content from current reports |
 
-Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
+Tools pick the provider that has a key (Financial Datasets or Equibles; `PINANCE_PROVIDER` decides when both do). A dash means that provider lacks the data.
 
-With `EQUIBLES_API_KEY` set, the Equibles functions (`{ data, meta, url }`) add:
-- `eq.searchFilings({ query, ticker? })`: keyword and semantic search over filings and transcripts since 2000, with deep links to the passage
-- `eq.earningsCall({ ticker, fiscalYear, fiscalQuarter })`: speaker-labelled earnings call transcript
+Under [pit](https://github.com/cv/pit), call the saved functions from one program: `fd.*` with a Financial Datasets key, `eq.*` with an Equibles key; `pinance.providers()` says which is active. For example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. `fd.*` returns `{ data, url }` (lists also `count`) and `eq.*` returns `{ data, meta, url }`; cite `url`.
+
+Only Equibles has (tool / function):
+- `search_filings` / `eq.searchFilings({ query, ticker? })`: keyword and semantic search over filings and transcripts since 2000, with deep links to the passage
+- `get_earnings_call_transcript` / `eq.earningsCall({ ticker, fiscalYear, fiscalQuarter })`: speaker-labelled earnings call transcript
 
 ## 10-K Items
 

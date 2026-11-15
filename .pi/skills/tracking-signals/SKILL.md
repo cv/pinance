@@ -7,17 +7,19 @@ description: Retrieves insider trading data and company news via Financial Datas
 
 ## Tools
 
-| Tool | pit function | Returns |
-|------|--------------|---------|
-| `get_insider_trades` | `fd.insiderTrades` | SEC Form 4 transactions (buys, sells, grants) |
-| `get_news` | `fd.news` | Recent news articles |
+| Tool | Financial Datasets | Equibles | Returns |
+|------|--------------------|----------|---------|
+| `get_insider_trades` | `fd.insiderTrades` | `eq.insiderTransactions` | SEC Form 4 transactions (buys, sells, grants) |
+| `get_news` | `fd.news` | — | Recent news articles |
 
-Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
+Tools pick the provider that has a key (Financial Datasets or Equibles; `PINANCE_PROVIDER` decides when both do). A dash means that provider lacks the data.
 
-With `EQUIBLES_API_KEY` set, the Equibles functions (`{ data, meta, url }`) add:
-- `eq.congressTrades({ ticker })`: trades disclosed by members of Congress
-- `eq.institutionalHolders({ ticker })`: largest 13F holders, with holder type and style
-- `eq.shortInterest({ ticker })`: FINRA short interest and days to cover
+Under [pit](https://github.com/cv/pit), call the saved functions from one program: `fd.*` with a Financial Datasets key, `eq.*` with an Equibles key; `pinance.providers()` says which is active. For example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. `fd.*` returns `{ data, url }` (lists also `count`) and `eq.*` returns `{ data, meta, url }`; cite `url`.
+
+Only Equibles has (tool / function):
+- `get_congress_trades` / `eq.congressTrades({ ticker })`: trades disclosed by members of Congress
+- `get_institutional_holders` / `eq.institutionalHolders({ ticker })`: largest 13F holders, with holder type and style
+- `get_short_interest` / `eq.shortInterest({ ticker })`: FINRA short interest and days to cover
 
 ## Parameters
 
