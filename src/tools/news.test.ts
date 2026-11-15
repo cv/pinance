@@ -46,7 +46,7 @@ describe("news tools", () => {
 					ticker: "AAPL",
 					start_date: "2024-01-01",
 					end_date: "2024-01-31",
-					limit: 20,
+					limit: 5,
 				},
 				undefined,
 				vi.fn(),
@@ -59,12 +59,28 @@ describe("news tools", () => {
 					ticker: "AAPL",
 					start_date: "2024-01-01",
 					end_date: "2024-01-31",
-					limit: 20,
+					limit: 5,
 				},
 				undefined,
 			);
 			expect(getResultJson(result)).toEqual(mockNews);
 			expect(result.details.count).toBe(2);
+		});
+
+		it("should cap the limit at the API's maximum of 10", async () => {
+			mockCallApi.mockResolvedValue({
+				data: { news: [] },
+				url: "https://api.financialdatasets.ai/news/",
+			});
+
+			const tool = getTool(mockPi.tools, "get_news");
+			await tool.execute("test-id", { ticker: "AAPL", limit: 20 }, undefined, vi.fn(), {});
+
+			expect(mockCallApi).toHaveBeenCalledWith(
+				"/news/",
+				expect.objectContaining({ ticker: "AAPL", limit: 10 }),
+				undefined,
+			);
 		});
 
 		it("should use default limit", async () => {

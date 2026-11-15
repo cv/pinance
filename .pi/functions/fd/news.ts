@@ -1,10 +1,10 @@
 /**
- * Recent news articles about a company, for announcements, market trends, and sentiment.
+ * Recent news articles about a company (at most the 10 latest), for announcements, market trends, and sentiment.
  *
  * @param input.ticker - Stock ticker, such as "AAPL".
  * @param input.start_date - Only articles on or after this date, YYYY-MM-DD.
  * @param input.end_date - Only articles on or before this date, YYYY-MM-DD.
- * @param input.limit - Number of articles (default 10, max 100).
+ * @param input.limit - Number of articles (default and max 10; the API rejects more).
  */
 async function news(
   { pinance: { list } },
@@ -19,7 +19,7 @@ async function news(
   return list(
     "financialdatasets",
     "/news/",
-    { ...input, limit: Math.min(input.limit ?? 10, 100) },
+    { ...input, limit: Math.max(1, Math.min(input.limit ?? 10, 10)) },
     "news",
   );
 }
