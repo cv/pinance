@@ -5,9 +5,11 @@ name: pi Assistant
 # Financial Datasets functions in .pi/functions/fd and pi-action loads the skills in .pi/skills.
 #
 # Repository secrets:
-#   ANTHROPIC_API_KEY           model provider key (or change provider/model below)
-#   FINANCIAL_DATASETS_API_KEY  read by fd.request in the shell; never printed by the functions
-#   EQUIBLES_API_KEY            optional, read by eq.request the same way
+#   NVIDIA_API_KEY              key for the NVIDIA inference endpoint (the model below)
+#   FINANCIAL_DATASETS_API_KEY  and/or EQUIBLES_API_KEY: a key for one data provider is enough.
+#                               The functions read them in the shell and never print them.
+# Repository variable (optional):
+#   PINANCE_PROVIDER            financialdatasets or equibles, when both keys are set
 
 on:
   issues:
@@ -43,6 +45,20 @@ jobs:
         uses: cv/pi-action@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # The same NVIDIA endpoint and model as local pi (provider "inference.nvidia" in
+          # ~/.pi/agent/models.json), so no Anthropic key is needed.
+          provider: nvidia
+          model: aws/anthropic/bedrock-claude-opus-5-5
+          provider_base_url: https://inference-api.nvidia.com
+          provider_api: anthropic-messages
+          provider_api_key: NVIDIA_API_KEY # the name of the environment variable below
+          model_name: Opus 5.5 (NVIDIA)
+          model_reasoning: true
+          model_input: text,image
+          model_context_window: 1050000
+          model_max_tokens: 128000
+          compat_force_adaptive_thinking: true
+          thinking_level: high
           extensions: |
             github:cv/pit#v0.37.0
           # Only OWNER and MEMBER can start pi (the default allowed_associations), so the
@@ -50,6 +66,7 @@ jobs:
           trust_project: true
           worktree_snapshot_exclude: .env*
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           FINANCIAL_DATASETS_API_KEY: ${{ secrets.FINANCIAL_DATASETS_API_KEY }}
           EQUIBLES_API_KEY: ${{ secrets.EQUIBLES_API_KEY }}
+          PINANCE_PROVIDER: ${{ vars.PINANCE_PROVIDER }}
