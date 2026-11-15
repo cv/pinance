@@ -1,0 +1,53 @@
+name: pi Assistant
+
+# Mention @pi in an issue, pull request, or comment to run a durable pi agent with pit
+# (https://github.com/cv/pi-action, https://github.com/cv/pit). With trust_project, pit loads the
+# Financial Datasets functions in .pi/functions/fd and pi-action loads the skills in .pi/skills.
+#
+# Repository secrets:
+#   ANTHROPIC_API_KEY           model provider key (or change provider/model below)
+#   FINANCIAL_DATASETS_API_KEY  read by fd.request in the shell; never printed by the functions
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+  issue_comment:
+    types: [created, edited] # edited: a box ticked on a question from a pi-durable extension
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  pi-response:
+    # @pi requests, /answer replies, and edits of pi's questions (not other edited comments).
+    if: >-
+      (github.event.action == 'edited' && contains(github.event.comment.body, '<!-- pi-action:question'))
+      || (github.event.action != 'edited' && (contains(github.event.comment.body || github.event.issue.body || github.event.pull_request.body || '', '@pi')
+      || contains(github.event.comment.body || '', '/answer')))
+    runs-on: ubuntu-latest
+    # One run per issue or pull request at a time.
+    concurrency:
+      group: pi-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: false
+    permissions:
+      contents: write # push code and refs/pi/threads/*
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run pi-action
+        uses: cv/pi-action@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          extensions: |
+            github:cv/pit#v0.37.0
+          # Only OWNER and MEMBER can start pi (the default allowed_associations), so the
+          # repository's .pi/functions and .pi/skills are code we already run.
+          trust_project: true
+          worktree_snapshot_exclude: .env*
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FINANCIAL_DATASETS_API_KEY: ${{ secrets.FINANCIAL_DATASETS_API_KEY }}
