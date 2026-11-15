@@ -1,4 +1,25 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { parseEnv } from "node:util";
+
 const BASE_URL = "https://api.financialdatasets.ai";
+const API_KEY_NAME = "FINANCIAL_DATASETS_API_KEY";
+
+/**
+ * The API key from the environment, else from `.env` in `cwd` (where pi runs). The pit function
+ * `fd.request` resolves the key the same way.
+ */
+export function resolveApiKey(cwd: string = process.cwd()): string | undefined {
+	const fromEnv = process.env[API_KEY_NAME];
+	if (fromEnv) {
+		return fromEnv;
+	}
+	try {
+		return parseEnv(readFileSync(join(cwd, ".env"), "utf8"))[API_KEY_NAME] || undefined;
+	} catch {
+		return undefined;
+	}
+}
 
 export interface ApiResponse<T> {
 	data: T;
@@ -17,7 +38,7 @@ export class ApiKeyMissingError extends Error {
 				"To use pinance tools, you need an API key from Financial Datasets:\n" +
 				"1. Get your API key at https://financialdatasets.ai/\n" +
 				"2. Set it: export FINANCIAL_DATASETS_API_KEY=your_key_here\n" +
-				"   Or add to .env file in your project directory.",
+				"   Or add it to a .env file in the directory where you run pi.",
 		);
 		this.name = "ApiKeyMissingError";
 	}
@@ -57,7 +78,7 @@ export async function callApi<T>(
 	params: Record<string, string | number | string[] | undefined>,
 	signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
-	const apiKey = process.env.FINANCIAL_DATASETS_API_KEY;
+	const apiKey = resolveApiKey();
 	if (!apiKey) {
 		throw new ApiKeyMissingError();
 	}

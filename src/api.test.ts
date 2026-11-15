@@ -1,5 +1,52 @@
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiKeyMissingError, ApiRequestError, callApi } from "./api.js";
+import { ApiKeyMissingError, ApiRequestError, callApi, resolveApiKey } from "./api.js";
+
+function withTempDir(envFile?: string): string {
+	const dir = mkdtempSync(join(tmpdir(), "pinance-"));
+	if (envFile !== undefined) {
+		writeFileSync(join(dir, ".env"), envFile);
+	}
+	return dir;
+}
+
+describe("resolveApiKey", () => {
+	const dirs: string[] = [];
+	const tempDir = (envFile?: string) => {
+		const dir = withTempDir(envFile);
+		dirs.push(dir);
+		return dir;
+	};
+
+	afterEach(() => {
+		vi.unstubAllEnvs();
+		for (const dir of dirs.splice(0)) {
+			rmSync(dir, { recursive: true, force: true });
+		}
+	});
+
+	it("prefers the environment", () => {
+		vi.stubEnv("FINANCIAL_DATASETS_API_KEY", "from-env");
+		expect(resolveApiKey(tempDir("FINANCIAL_DATASETS_API_KEY=from-file\n"))).toBe("from-env");
+	});
+
+	it("falls back to .env in the directory", () => {
+		vi.stubEnv("FINANCIAL_DATASETS_API_KEY", "");
+		// Keep the repository's own .env out of this test.
+		const emptyDir = withTempDir();
+		vi.spyOn(process, "cwd").mockReturnValue(emptyDir);
+		const dir = tempDir('# comment\nOTHER=1\nFINANCIAL_DATASETS_API_KEY="from-file"\n');
+		expect(resolveApiKey(dir)).toBe("from-file");
+	});
+
+	it("returns undefined without a key or .env", () => {
+		vi.stubEnv("FINANCIAL_DATASETS_API_KEY", "");
+		expect(resolveApiKey(tempDir())).toBeUndefined();
+		expect(resolveApiKey(tempDir("FINANCIAL_DATASETS_API_KEY=\n"))).toBeUndefined();
+	});
+});
 
 describe("callApi", () => {
 	beforeEach(() => {
