@@ -4,7 +4,7 @@ Investigated 2026-11-15 from <https://equibles.com/docs/api> (the docs serve Mar
 
 ## Summary
 
-Equibles is a broader US equity research API than Financial Datasets (FD): it adds earnings-call transcripts, 13F holdings, congressional trades, short data, options, macro series, company KPIs, guidance, and full-text filing search. It does **not** offer crypto prices or a general company-news feed, and filings come as searchable documents and lines, not as 10-K/10-Q items that are already split out. **Recommendation:** add it next to FD as a second set of pit functions (`eq.*`) for the datasets FD lacks. Don't replace FD.
+Equibles is a broader US equity research API than Financial Datasets (FD): it adds earnings-call transcripts, 13F holdings, congressional trades, short data, options, macro series, company KPIs, guidance, and full-text filing search. It does **not** offer crypto prices or a general company-news feed, and filings come as searchable documents and lines, not as 10-K/10-Q items that are already split out. **Outcome:** pinance supports both. A key for either provider is enough: the shared tools and functions (prices, statements, metrics, estimates, segments, filings, insider trades) work with each, and the gaps above are tools only one provider has. With both keys, `PINANCE_PROVIDER` picks the provider for shared tools.
 
 ## API basics
 
@@ -57,17 +57,50 @@ Requests pause at the cap instead of incurring overage charges. With 100 request
 
 ## Integration
 
-Equibles runs next to Financial Datasets as pit project functions in [`.pi/functions/eq/`](../.pi/functions/eq/), covering only what FD lacks. `fd.*` remains the source for news, crypto, and filing items.
+### Choosing a provider
 
-| Function | Endpoint |
-|---|---|
-| `eq.earningsCall({ ticker, fiscalYear, fiscalQuarter })` | `GET /v1/stocks/{ticker}/earnings-calls/{fiscalYear}/{fiscalQuarter}/speakers` |
-| `eq.institutionalHolders({ ticker })` | `GET /v1/stocks/{ticker}/institutional-holders` |
-| `eq.shortInterest({ ticker })` | `GET /v1/stocks/{ticker}/short-interest` |
-| `eq.congressTrades({ ticker \| memberId })` | `GET /v1/congress/trades` |
-| `eq.searchFilings({ query, ticker? })` | `GET /v1/stocks/{ticker}/filings/search` or `GET /v1/filings/search` |
-| `eq.request(path, params)` | any other `/v1` endpoint |
+| Keys set | Shared tools and functions | Provider-only tools |
+|---|---|---|
+| `FINANCIAL_DATASETS_API_KEY` | Financial Datasets | crypto, news, and filing items are offered; Equibles-only tools are not |
+| `EQUIBLES_API_KEY` | Equibles | transcripts, 13F holders, short interest, congressional trades, and filing search are offered; FD-only tools are not |
+| both | Financial Datasets, or Equibles with `PINANCE_PROVIDER=equibles` | all offered; each uses its own provider |
+| neither | all tools are offered, and each call says which key to set | |
 
-Each returns `{ data, meta, url }`: the rows, the paging and context fields (such as `hasMore`, `totalTurnCount`, or `reportDate`), and the URL to cite.
+The extension reads keys and `PINANCE_PROVIDER` from the environment, then from `.env` in pi's working directory ([`src/providers.ts`](../src/providers.ts)). Its system prompt section names the active provider. Under pit, `pinance.providers()` reports the same thing without revealing keys.
 
-`eq.request` reads `EQUIBLES_API_KEY` from the environment or `.env` in the shell and sends it as `Authorization: Bearer` with `curl -H @-`. It refuses `api_key` query parameters, because pi-action stores tool output and URLs in public thread refs. The free plan allows 100 requests a day, shared with the MCP server, and 4xx answers count too, so check parameters against the docs before calling.
+### Extension
+
+Shared tools have an Equibles backend in [`src/equibles.ts`](../src/equibles.ts). They keep their names and parameters, and return Equibles' own JSON plus `provider: "equibles"`. Differences from Financial Datasets:
+
+- `get_price_snapshot`: the latest settled daily bar (`/v1/prices/latest`); on the free plan, it appears 4 hours after the close
+- `get_prices`: day, week, or month bars only, with no interval multipliers
+- Statement tools: one period per call, the latest by default; pass `fiscal_year` and `fiscal_period` for others. No TTM statements.
+- `get_financial_metrics`: quarterly valuation multiples, newest first
+- `get_insider_trades`: filing-date filters become a transaction-date range
+
+Equibles-only tools: `get_earnings_call_transcript`, `get_institutional_holders`, `get_short_interest`, `get_congress_trades`, and `search_filings`.
+
+### pit functions
+
+[`.pi/functions/eq/`](../.pi/functions/eq/) has a function for each dataset. Each returns `{ data, meta, url }`: the rows, the paging and context fields (such as `hasMore` or `reportDate`), and the URL to cite.
+
+| Data | Function | Endpoint |
+|---|---|---|
+| Latest prices | `eq.latestPrices({ tickers })` | `GET /v1/prices/latest` |
+| Price history | `eq.prices` | `GET /v1/stocks/{ticker}/prices` |
+| Statements | `eq.financialStatement({ statement, year, period })` | `GET /v1/stocks/{ticker}/financial-statements/{statement}` |
+| Valuation | `eq.valuationMultiples({ history })` | `GET /v1/stocks/{ticker}/valuation-multiples[/history]` |
+| Estimates | `eq.analystEstimates` | `GET /v1/stocks/{ticker}/analyst-estimates` |
+| Segments | `eq.revenueBreakdown` | `GET /v1/stocks/{ticker}/revenue-breakdown` |
+| Filings | `eq.filings` | `GET /v1/stocks/{ticker}/filings` |
+| Insider trades | `eq.insiderTransactions` | `GET /v1/stocks/{ticker}/insider-transactions` |
+| Earnings calls | `eq.earningsCall({ ticker, fiscalYear, fiscalQuarter })` | `GET /v1/stocks/{ticker}/earnings-calls/{fiscalYear}/{fiscalQuarter}/speakers` |
+| 13F holders | `eq.institutionalHolders` | `GET /v1/stocks/{ticker}/institutional-holders` |
+| Short interest | `eq.shortInterest` | `GET /v1/stocks/{ticker}/short-interest` |
+| Congress | `eq.congressTrades({ ticker \| memberId })` | `GET /v1/congress/trades` |
+| Filing search | `eq.searchFilings({ query, ticker? })` | `GET /v1/stocks/{ticker}/filings/search` or `GET /v1/filings/search` |
+| Anything else | `eq.request(path, params)` | any `/v1` endpoint |
+
+### Keys
+
+The extension sends `Authorization: Bearer` from Node, and its tools never put the key in a URL. `eq.request` sends it with `curl -H @-` from the shell, so the key never enters pit's sandbox, and it refuses an `api_key` query parameter. This matters because pi-action stores tool output and URLs in public thread refs. The free plan allows 100 requests a day (REST and MCP together, 4xx answers included), so check parameters against the docs before calling.

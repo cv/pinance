@@ -49,7 +49,7 @@ Each tool module should:
 
 1. Create a file in `src/tools/` (e.g., `src/tools/my-feature.ts`)
 2. Use [TypeBox](https://github.com/sinclairzx81/typebox) for parameter schemas (see `src/schemas.ts` for shared types)
-3. Use `registerSimpleTool` or `registerArrayTool` helpers from `src/tool-helpers.ts`
+3. Use `registerSimpleTool` or `registerArrayTool` from `src/tool-helpers.ts` for Financial Datasets endpoints, and pass `equibles` (a backend from `src/equibles.ts`) when Equibles has the same data. Use `registerEquiblesTool` for Equibles-only data. Users may have a key for only one provider, so give every shared tool both backends when you can
 4. Export a `register*Tools(pi: ExtensionAPI)` function
 5. Add export to `src/tools/index.ts`
 6. Call the register function in `src/index.ts`
