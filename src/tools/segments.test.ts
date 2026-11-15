@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { registerSegmentsTools } from "./segments.js";
+import { registerSegmentsTools, SEGMENTS_ENDPOINT } from "./segments.js";
 import { createMockPi, getResultJson, getTool, type MockPi } from "./test-utils.js";
 
 vi.mock("../api.js", () => ({
@@ -9,6 +9,7 @@ vi.mock("../api.js", () => ({
 import { callApi } from "../api.js";
 
 const mockCallApi = vi.mocked(callApi);
+const url = `https://api.financialdatasets.ai${SEGMENTS_ENDPOINT}`;
 
 describe("segments tools", () => {
 	let mockPi: MockPi;
@@ -26,45 +27,47 @@ describe("segments tools", () => {
 		it("should register get_segmented_revenues tool", () => {
 			expect(mockPi.tools.has("get_segmented_revenues")).toBe(true);
 		});
+
+		it("should use the income statement segments endpoint", () => {
+			expect(SEGMENTS_ENDPOINT).toBe("/financials/income-statements/segments/");
+		});
 	});
 
 	describe("get_segmented_revenues", () => {
-		it("should call API with parameters", async () => {
-			const mockSegments = {
-				i_phone: 200000000000,
-				services: 80000000000,
-				mac: 30000000000,
-			};
-			mockCallApi.mockResolvedValue({
-				data: { segmented_revenues: mockSegments },
-				url: "https://api.financialdatasets.ai/financials/segmented-revenues/",
-			});
+		it("should call API with parameters and return income_statement_segments", async () => {
+			const rows = [
+				{
+					ticker: "AAPL",
+					report_period: "2026-09-26",
+					revenue: { product: [{ label: "iPhone", value: 254098000000 }] },
+				},
+			];
+			mockCallApi.mockResolvedValue({ data: { income_statement_segments: rows }, url });
 
 			const tool = getTool(mockPi.tools, "get_segmented_revenues");
 			const result = await tool.execute(
 				"test-id",
-				{ ticker: "AAPL", period: "annual", limit: 5 },
+				{ ticker: "AAPL", period: "annual", limit: 5, report_period_gte: "2024-01-01" },
 				undefined,
 				vi.fn(),
 				{},
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
-				"/financials/segmented-revenues/",
-				{ ticker: "AAPL", period: "annual", limit: 5 },
+				SEGMENTS_ENDPOINT,
+				{ ticker: "AAPL", period: "annual", limit: 5, report_period_gte: "2024-01-01" },
 				undefined,
 			);
-			expect(getResultJson(result)).toEqual(mockSegments);
+			expect(getResultJson(result)).toEqual(rows);
+			expect(result.details).toMatchObject({ count: 1, url });
 		});
 
-		it("should use default limit", async () => {
-			mockCallApi.mockResolvedValue({
-				data: { segmented_revenues: {} },
-				url: "https://api.financialdatasets.ai/financials/segmented-revenues/",
-			});
+		it("should fall back to the documented segmented_financials key", async () => {
+			const rows = [{ ticker: "MSFT" }];
+			mockCallApi.mockResolvedValue({ data: { segmented_financials: rows }, url });
 
 			const tool = getTool(mockPi.tools, "get_segmented_revenues");
-			await tool.execute(
+			const result = await tool.execute(
 				"test-id",
 				{ ticker: "MSFT", period: "quarterly" },
 				undefined,
@@ -73,17 +76,15 @@ describe("segments tools", () => {
 			);
 
 			expect(mockCallApi).toHaveBeenCalledWith(
-				"/financials/segmented-revenues/",
-				{ ticker: "MSFT", period: "quarterly", limit: 10 },
+				SEGMENTS_ENDPOINT,
+				{ ticker: "MSFT", period: "quarterly", limit: 4 },
 				undefined,
 			);
+			expect(getResultJson(result)).toEqual(rows);
 		});
 
 		it("should handle empty segments", async () => {
-			mockCallApi.mockResolvedValue({
-				data: {},
-				url: "https://api.financialdatasets.ai/financials/segmented-revenues/",
-			});
+			mockCallApi.mockResolvedValue({ data: {}, url });
 
 			const tool = getTool(mockPi.tools, "get_segmented_revenues");
 			const result = await tool.execute(
@@ -94,7 +95,7 @@ describe("segments tools", () => {
 				{},
 			);
 
-			expect(getResultJson(result)).toEqual({});
+			expect(getResultJson(result)).toEqual([]);
 		});
 	});
 });
