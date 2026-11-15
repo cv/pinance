@@ -42,7 +42,7 @@ get_income_statements(ticker: "MSFT", ...)
 Compare and analyze margins
 ```
 
-Under pit, check `pinance.providers()` once if you don't know which provider has a key (`fd.*` for Financial Datasets, `eq.*` for Equibles), then fetch everything independent in one program and return only what the answer needs:
+Under pit, use `market.*` for quotes, prices, filings, insider trades, and valuation: they work with either provider and return the same fields. For other data, check `pinance.providers()` once if you don't know which provider has a key (`fd.*` for Financial Datasets, `eq.*` for Equibles). Fetch everything independent in one program and return only what the answer needs:
 ```ts
 async ({ fd: { financialStatements } }) => {
   const [aapl, msft] = await Promise.all(

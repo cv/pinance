@@ -62,7 +62,9 @@ pi install /path/to/pinance
 
 ### With pit
 
-Under [pit](https://github.com/cv/pit) (`pi install git:github.com/cv/pit`), the model writes TypeScript programs instead of calling tools one at a time. This repository has the same data as project functions, loaded when you trust the project: [`.pi/functions/fd/`](.pi/functions/fd/) for Financial Datasets and [`.pi/functions/eq/`](.pi/functions/eq/) for Equibles. `pinance.providers()` reports which provider has a key (never the key itself), so a program can pick the right set:
+Under [pit](https://github.com/cv/pit) (`pi install git:github.com/cv/pit`), the model writes TypeScript programs instead of calling tools one at a time. This repository has the same data as project functions, loaded when you trust the project: [`.pi/functions/fd/`](.pi/functions/fd/) for Financial Datasets and [`.pi/functions/eq/`](.pi/functions/eq/) for Equibles. `pinance.providers()` reports which provider has a key (never the key itself).
+
+For data both providers have, the [`market.*`](.pi/functions/market/) functions return one normalized shape from whichever provider is active, or the one named with `provider: "fd"` or `"eq"`: `market.quote({ tickers })`, `market.prices({ ticker, startDate, endDate, interval })`, `market.filings({ ticker, form })`, `market.insiderTrades({ ticker })`, and `market.valuation({ tickers })`. The provider functions cover everything else:
 
 | Data | Financial Datasets | Equibles |
 |------|--------------------|----------|
@@ -78,16 +80,16 @@ Under [pit](https://github.com/cv/pit) (`pi install git:github.com/cv/pit`), the
 | Earnings calls, ownership | | `eq.earningsCall`, `eq.institutionalHolders`, `eq.shortInterest`, `eq.congressTrades` |
 | Any other endpoint | `fd.request(endpoint, params)` | `eq.request(path, params)` |
 
-`fd.*` functions return `{ data, url }` (lists add `count`) and `eq.*` functions `{ data, meta, url }`, so a program can fetch several companies with `Promise.all` and return only the fields it needs:
+Every function returns `{ provider, data, url }` (lists add `count`; Equibles results add `meta` with paging and context), so a program can fetch several companies at once and return only the fields it needs:
 
 ```ts
-async ({ fd: { metricsSnapshot } }) => {
-  const rows = await Promise.all(["AAPL", "MSFT"].map((ticker) => metricsSnapshot({ ticker })));
-  return rows.map(({ data, url }) => ({ ticker: data.ticker, pe: data.price_to_earnings_ratio, url }));
+async ({ market: { valuation } }) => {
+  const { data, sources } = await valuation({ tickers: ["AAPL", "MSFT"] });
+  return { pe: data.map(({ ticker, pe }) => ({ ticker, pe })), sources };
 }
 ```
 
-`fd.request` and `eq.request` read their keys from the environment or `.env` in the shell and send them with `curl`, so a key never enters the sandbox, a URL, or a result.
+Every request goes through `pinance.get`, which reads the key from the environment or `.env` in the shell and sends it with `curl`, so a key never enters the sandbox, a URL, or a result. [docs/functions.md](docs/functions.md) describes the layers and how to add an endpoint, a dataset, or a provider.
 
 ### On GitHub with pi-action
 

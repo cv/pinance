@@ -26,6 +26,10 @@ This project uses [oxlint](https://oxc.rs/docs/guide/usage/linter) for linting a
 - oxfmt formats `src` and JSON: tabs, double quotes, semicolons, trailing commas, 100 columns (see [`.oxfmtrc.json`](.oxfmtrc.json))
 - pit owns `.pi/functions`, so neither tool touches it
 
+## pit functions
+
+[docs/functions.md](docs/functions.md) describes the layers in `.pi/functions`. To change a function, define the new version in a pi session with pit under the same function ID, run it against the live API, and promote it with `functions.promote`, which writes the file. pit rejects a redefinition that breaks the saved signature, so add result fields or optional parameters rather than removing or narrowing them. Hand edits to the files load on `/reload`.
+
 A pre-commit hook runs `npm run check` automatically. To fix issues:
 
 ```bash

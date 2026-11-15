@@ -82,7 +82,7 @@ Equibles-only tools: `get_earnings_call_transcript`, `get_institutional_holders`
 
 ### pit functions
 
-[`.pi/functions/eq/`](../.pi/functions/eq/) has a function for each dataset. Each returns `{ data, meta, url }`: the rows, the paging and context fields (such as `hasMore` or `reportDate`), and the URL to cite.
+[`.pi/functions/eq/`](../.pi/functions/eq/) has a function for each dataset, each one call to the shared `pinance.list` or `pinance.get` (see [functions.md](functions.md)). Each returns `{ provider, data, count, meta, url }`: the rows, the paging and context fields (such as `hasMore` or `reportDate`), and the URL to cite. For quotes, prices, filings, insider trades, and valuation, `market.*` returns the same records as from Financial Datasets.
 
 | Data | Function | Endpoint |
 |---|---|---|
@@ -103,4 +103,4 @@ Equibles-only tools: `get_earnings_call_transcript`, `get_institutional_holders`
 
 ### Keys
 
-The extension sends `Authorization: Bearer` from Node, and its tools never put the key in a URL. `eq.request` sends it with `curl -H @-` from the shell, so the key never enters pit's sandbox, and it refuses an `api_key` query parameter. This matters because pi-action stores tool output and URLs in public thread refs. The free plan allows 100 requests a day (REST and MCP together, 4xx answers included), so check parameters against the docs before calling.
+The extension sends `Authorization: Bearer` from Node, and its tools never put the key in a URL. `pinance.get` sends it with `curl -H @-` from the shell, so the key never enters pit's sandbox, and it refuses an `api_key` query parameter. This matters because pi-action stores tool output and URLs in public thread refs. The free plan allows 100 requests a day (REST and MCP together, 4xx answers included), so check parameters against the docs before calling.
