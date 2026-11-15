@@ -1,6 +1,6 @@
 /**
  * End-to-end tests for pinance: each case runs a real `pi -p` session (a paid LLM call) against the
- * live Financial Datasets API and checks which tools the model called.
+ * live Financial Datasets or Equibles API and checks which tools the model called.
  *
  * Two harnesses:
  * - plain: `pi --no-extensions -e ./src/index.ts`, so only this extension's tools exist and the model
@@ -10,7 +10,16 @@
  *   (.pi/functions/fd) from a program and cited https://api.financialdatasets.ai URLs. They are
  *   skipped when pit is not installed in the user's pi settings.
  *
- * Run with: npm run test:e2e (needs FINANCIAL_DATASETS_API_KEY, from the environment or .env).
+ * Provider cases (skipped without EQUIBLES_API_KEY; Equibles' free plan allows 100 requests a day,
+ * and these cases use about six):
+ * - PINANCE_PROVIDER=equibles with both keys: shared tools answer from Equibles.
+ * - Equibles only: FINANCIAL_DATASETS_API_KEY="" in a temp dir without .env, so Financial
+ *   Datasets-only tools are not offered and Equibles-only tools are.
+ * - pit with PINANCE_PROVIDER=equibles: programs use eq.* and cite https://api.equibles.com URLs.
+ * The Financial Datasets cases pin PINANCE_PROVIDER=financialdatasets, whatever the shell sets.
+ *
+ * Run with: npm run test:e2e (needs FINANCIAL_DATASETS_API_KEY and, for the provider cases,
+ * EQUIBLES_API_KEY, from the environment or .env).
  * Optional: PINANCE_E2E_MODEL=<pattern> picks the model; PINANCE_E2E_PIT=0 skips the pit cases.
  *
  * The API key behind these tests has no crypto price access (HTTP 403 "Crypto access restricted"),
@@ -18,15 +27,37 @@
  */
 
 import { spawn } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, type ExpectStatic, it } from "vitest";
 
 const SKIP_E2E = !process.env.FINANCIAL_DATASETS_API_KEY;
+const SKIP_EQUIBLES = !process.env.EQUIBLES_API_KEY;
+/** Absolute, so pi can load the extension from any working directory. */
+const EXTENSION = fileURLToPath(new URL("index.ts", import.meta.url));
 const PI_TIMEOUT_MS = 240_000;
 const TEST_TIMEOUT_MS = PI_TIMEOUT_MS + 30_000;
 const SOURCE_URL = /https:\/\/api\.financialdatasets\.ai\//;
+const EQUIBLES_URL = /https:\/\/api\.equibles\.com\//;
+/** Tools only Financial Datasets backs: an Equibles-only setup must not offer them. */
+const FD_ONLY_TOOLS = new Set([
+	"get_news",
+	"get_crypto_price_snapshot",
+	"get_crypto_prices",
+	"get_available_crypto_tickers",
+	"get_10K_filing_items",
+	"get_10Q_filing_items",
+	"get_8K_filing_items",
+]);
+const EQUIBLES_ONLY_TOOLS = [
+	"get_earnings_call_transcript",
+	"get_institutional_holders",
+	"get_short_interest",
+	"get_congress_trades",
+	"search_filings",
+];
 const CRYPTO_DENIED = /\b403\b|crypto access restricted|access denied|forbidden/i;
 const DENIAL_EXPLAINED =
 	/403|restricted|denied|forbidden|subscri|plan|access|permission|not available|unavailable/i;
@@ -51,7 +82,9 @@ const hasPit = (): boolean => {
 	}
 };
 
-const SKIP_PIT = SKIP_E2E || !hasPit();
+const PIT_INSTALLED = hasPit();
+const SKIP_PIT = SKIP_E2E || !PIT_INSTALLED;
+const SKIP_PIT_EQUIBLES = SKIP_EQUIBLES || !PIT_INSTALLED;
 
 interface ToolCall {
 	id: string;
@@ -66,11 +99,24 @@ interface ToolResult {
 	text: string;
 }
 
+/** A finished tool execution, from its `tool_execution_end` event. */
+interface ToolExecution {
+	toolCallId: string;
+	toolName: string;
+	isError: boolean;
+	/** The provider that answered, from the result's details or structuredContent. */
+	provider?: string;
+	url?: string;
+}
+
 interface PiResult {
 	/** Text of the last assistant message: the answer the user sees. */
 	output: string;
+	/** Tools declared to the model, replayed from the run's system messages. */
+	offeredTools: string[];
 	toolCalls: ToolCall[];
 	toolResults: ToolResult[];
+	executions: ToolExecution[];
 	/** Every result text, for asserting what the tools returned. */
 	resultText: string;
 }
@@ -89,7 +135,26 @@ interface AgentMessage {
 	toolCallId?: string;
 	toolName?: string;
 	isError?: boolean;
+	toolsAdded?: { name?: string }[];
+	toolsRemoved?: { name?: string }[];
 }
+
+interface ResultFields {
+	provider?: unknown;
+	url?: unknown;
+}
+
+interface PiEvent {
+	type?: string;
+	messages?: AgentMessage[];
+	toolCallId?: string;
+	toolName?: string;
+	isError?: boolean;
+	result?: { details?: ResultFields; structuredContent?: ResultFields };
+}
+
+const stringField = (...values: unknown[]): string | undefined =>
+	values.find((v): v is string => typeof v === "string");
 
 const blocks = (content: AgentMessage["content"]): ContentBlock[] =>
 	typeof content === "string" ? [{ type: "text", text: content }] : (content ?? []);
@@ -100,31 +165,56 @@ const textOf = (content: AgentMessage["content"]): string =>
 		.map((b) => b.text ?? "")
 		.join("\n");
 
-/** Parses `pi --mode json` output: the agent_end event carries the whole message history. */
+/**
+ * Parses `pi --mode json` output: the agent_end event carries the whole message history, and
+ * tool_execution_end events carry each tool's full result.
+ */
 const parsePiJson = (stdout: string): PiResult => {
 	let messages: AgentMessage[] | undefined;
+	const executions: ToolExecution[] = [];
 	for (const line of stdout.split("\n")) {
 		if (!line.startsWith("{")) {
 			continue;
 		}
+		let event: PiEvent;
 		try {
-			const event = JSON.parse(line) as { type?: string; messages?: AgentMessage[] };
-			if (event.type === "agent_end" && Array.isArray(event.messages)) {
-				messages = event.messages;
-			}
+			event = JSON.parse(line) as PiEvent;
 		} catch {
-			// Not an event line.
+			continue; // Not an event line.
+		}
+		if (event.type === "agent_end" && Array.isArray(event.messages)) {
+			messages = event.messages;
+		} else if (event.type === "tool_execution_end") {
+			const details = event.result?.details;
+			const structured = event.result?.structuredContent;
+			const provider = stringField(details?.provider, structured?.provider);
+			const url = stringField(details?.url, structured?.url);
+			executions.push({
+				toolCallId: event.toolCallId ?? "",
+				toolName: event.toolName ?? "",
+				isError: event.isError === true,
+				...(provider ? { provider } : {}),
+				...(url ? { url } : {}),
+			});
 		}
 	}
 	if (!messages) {
 		throw new Error(`pi printed no agent_end event:\n${stdout.slice(-2000)}`);
 	}
 
+	const offered = new Set<string>();
 	const toolCalls: ToolCall[] = [];
 	const toolResults: ToolResult[] = [];
 	let output = "";
 	for (const msg of messages) {
-		if (msg.role === "assistant") {
+		if (msg.role === "system") {
+			for (const tool of msg.toolsAdded ?? []) {
+				offered.add(tool.name ?? "");
+			}
+			for (const tool of msg.toolsRemoved ?? []) {
+				offered.delete(tool.name ?? "");
+			}
+		} else if (msg.role === "assistant") {
 			for (const block of blocks(msg.content)) {
 				if (block.type === "toolCall") {
 					toolCalls.push({
@@ -149,17 +239,40 @@ const parsePiJson = (stdout: string): PiResult => {
 	}
 	return {
 		output,
+		offeredTools: [...offered],
 		toolCalls,
 		toolResults,
+		executions,
 		resultText: toolResults.map((r) => r.text).join("\n"),
 	};
 };
 
-const runPi = async (prompt: string, mode: "plain" | "pit"): Promise<PiResult> => {
+interface RunOptions {
+	/** Variables to set for pi; undefined removes one. */
+	env?: Record<string, string | undefined>;
+	/** pi's working directory (default: the repo, whose .env pinance reads). */
+	cwd?: string;
+}
+
+const runPi = async (
+	prompt: string,
+	mode: "plain" | "pit",
+	options: RunOptions = {},
+): Promise<PiResult> => {
+	const env: NodeJS.ProcessEnv = {
+		...process.env,
+		PINANCE_PROVIDER: "financialdatasets",
+		...options.env,
+	};
+	for (const [name, value] of Object.entries(env)) {
+		if (value === undefined) {
+			delete env[name];
+		}
+	}
 	const args = [
 		...(mode === "plain" ? ["--no-extensions"] : []),
 		"-e",
-		"./src/index.ts",
+		EXTENSION,
 		// Trust project-local files (skills, pit's .pi/functions) without a prompt.
 		"--approve",
 		"--no-session",
@@ -178,7 +291,8 @@ const runPi = async (prompt: string, mode: "plain" | "pit"): Promise<PiResult> =
 		stderr: string;
 	}>((resolve, reject) => {
 		const child = spawn("pi", args, {
-			env: process.env,
+			env,
+			...(options.cwd ? { cwd: options.cwd } : {}),
 			stdio: ["ignore", "pipe", "pipe"],
 			timeout: PI_TIMEOUT_MS,
 		});
@@ -211,10 +325,17 @@ const resultsOf = (r: PiResult, name: string): ToolResult[] => {
 	return r.toolResults.filter((tr) => ids.has(tr.toolCallId) || tr.toolName === name);
 };
 
-/** `fd.*` function names a pit program used, from `fd: { a, b: alias }` destructuring or `fd.a`. */
-const fdFunctionsIn = (code: string): string[] => {
+/** Executions of one tool, with the provider each result came from. */
+const executionsOf = (r: PiResult, name: string): ToolExecution[] =>
+	r.executions.filter((e) => e.toolName === name);
+
+/**
+ * Function names a pit program used from one namespace (`fd`, `eq`, `pinance`), from
+ * `ns: { a, b: alias }` destructuring or `ns.a`.
+ */
+const functionsIn = (code: string, ns: string): string[] => {
 	const names = new Set<string>();
-	for (const match of code.matchAll(/\bfd\s*:\s*\{([^}]*)\}/g)) {
+	for (const match of code.matchAll(new RegExp(`\\b${ns}\\s*:\\s*\\{([^}]*)\\}`, "g"))) {
 		for (const part of (match[1] ?? "").split(",")) {
 			const name = part.split(":")[0]?.trim();
 			if (name && /^\w+$/.test(name)) {
@@ -222,7 +343,7 @@ const fdFunctionsIn = (code: string): string[] => {
 			}
 		}
 	}
-	for (const match of code.matchAll(/\bfd\.(\w+)/g)) {
+	for (const match of code.matchAll(new RegExp(`\\b${ns}\\.(\\w+)`, "g"))) {
 		names.add(match[1] ?? "");
 	}
 	return [...names];
@@ -233,9 +354,11 @@ const pitPrograms = (r: PiResult): string[] =>
 		.filter((tc) => tc.name === "typescript")
 		.map((tc) => (typeof tc.arguments.code === "string" ? tc.arguments.code : ""));
 
-const fdFunctionsUsed = (r: PiResult): string[] => [
-	...new Set(pitPrograms(r).flatMap(fdFunctionsIn)),
+const functionsUsed = (r: PiResult, ns: string): string[] => [
+	...new Set(pitPrograms(r).flatMap((code) => functionsIn(code, ns))),
 ];
+
+const fdFunctionsUsed = (r: PiResult): string[] => functionsUsed(r, "fd");
 
 /** Suites run concurrently (each case is a separate pi process) with room for slow model turns. */
 const SUITE = { timeout: TEST_TIMEOUT_MS };
@@ -252,6 +375,19 @@ const expectCryptoPrices = (expect: ExpectStatic, r: PiResult, tool: string): vo
 	}
 };
 
+/** The tool ran on Equibles: every successful result says so, and the answer cites Equibles. */
+const expectFromEquibles = (expect: ExpectStatic, r: PiResult, tool: string): void => {
+	expect(toolNames(r)).toContain(tool);
+	const done = executionsOf(r, tool).filter((e) => !e.isError);
+	expect(done.length).toBeGreaterThan(0);
+	expect(done.map((e) => e.provider)).toEqual(done.map(() => "equibles"));
+	for (const e of done) {
+		expect(e.url).toMatch(EQUIBLES_URL);
+	}
+	expect(r.output).toMatch(EQUIBLES_URL);
+	expect(r.output).not.toMatch(SOURCE_URL);
+};
+
 /** Under pit the model must reach the API through fd.* functions in a typescript program. */
 const expectPitPrograms = (expect: ExpectStatic, r: PiResult): void => {
 	expect(toolNames(r)).toContain("typescript");
@@ -263,6 +399,9 @@ describe.skipIf(SKIP_E2E).concurrent("E2E: Stock Prices", SUITE, () => {
 	it("get_price_snapshot returns AAPL price", async ({ expect }) => {
 		const r = await runPi("Get the current stock price of AAPL", "plain");
 		expect(toolNames(r)).toContain("get_price_snapshot");
+		const done = executionsOf(r, "get_price_snapshot").filter((e) => !e.isError);
+		expect(done.length).toBeGreaterThan(0);
+		expect(done.map((e) => e.provider)).toEqual(done.map(() => "financialdatasets"));
 		expect(r.output.toLowerCase()).toMatch(/price|aapl|\$[\d,]+/);
 		expect(r.output).toMatch(SOURCE_URL);
 	});
@@ -441,5 +580,65 @@ describe.skipIf(SKIP_PIT).concurrent("E2E: pit (fd.* project functions)", SUITE,
 			expect(r.output).toMatch(SOURCE_URL);
 			expect(r.output.toLowerCase()).toMatch(/btc|bitcoin|\$/);
 		}
+	});
+});
+
+describe.skipIf(SKIP_EQUIBLES).concurrent("E2E: Equibles via PINANCE_PROVIDER", SUITE, () => {
+	const env = { PINANCE_PROVIDER: "equibles" };
+
+	it("get_price_snapshot answers from Equibles", async ({ expect }) => {
+		const r = await runPi("Get the current stock price of AAPL", "plain", { env });
+		expectFromEquibles(expect, r, "get_price_snapshot");
+		expect(r.output).toMatch(/\$\s?[\d,]+(\.\d+)?/);
+		// Both keys are set, so Financial Datasets-only tools stay available.
+		if (process.env.FINANCIAL_DATASETS_API_KEY) {
+			expect(r.offeredTools).toContain("get_news");
+		}
+	});
+
+	it("get_income_statements answers from Equibles", async ({ expect }) => {
+		const r = await runPi("Get Apple's latest annual income statement", "plain", { env });
+		expectFromEquibles(expect, r, "get_income_statements");
+		expect(r.output.toLowerCase()).toMatch(/revenue|income|net/);
+	});
+});
+
+describe.skipIf(SKIP_EQUIBLES).concurrent("E2E: Equibles only", SUITE, () => {
+	it("offers Equibles tools only and get_institutional_holders works", async ({ expect }) => {
+		// No .env in the temp dir and an empty Financial Datasets key: only Equibles is configured.
+		const cwd = mkdtempSync(join(tmpdir(), "pinance-e2e-"));
+		try {
+			const r = await runPi("Who are the top 3 institutional holders of AAPL?", "plain", {
+				cwd,
+				env: {
+					FINANCIAL_DATASETS_API_KEY: "",
+					EQUIBLES_API_KEY: process.env.EQUIBLES_API_KEY,
+					PINANCE_PROVIDER: undefined,
+				},
+			});
+			expect(r.offeredTools).toEqual(
+				expect.arrayContaining([...EQUIBLES_ONLY_TOOLS, "get_price_snapshot"]),
+			);
+			expect(r.offeredTools.filter((name) => FD_ONLY_TOOLS.has(name))).toEqual([]);
+			expectFromEquibles(expect, r, "get_institutional_holders");
+			expect(r.output).toMatch(/blackrock|vanguard|state street|berkshire/i);
+		} finally {
+			rmSync(cwd, { recursive: true, force: true });
+		}
+	});
+});
+
+describe.skipIf(SKIP_PIT_EQUIBLES).concurrent("E2E: pit (eq.* project functions)", SUITE, () => {
+	it("eq.* answers a price question and cites Equibles URLs", async ({ expect }) => {
+		const r = await runPi("Get the current stock price of AAPL", "pit", {
+			env: { PINANCE_PROVIDER: "equibles" },
+		});
+		expectPitPrograms(expect, r);
+		const eq = functionsUsed(r, "eq");
+		expect(eq.some((n) => n === "latestPrices" || n === "prices")).toBe(true);
+		expect(fdFunctionsUsed(r)).toEqual([]);
+		expect(r.resultText).toMatch(EQUIBLES_URL);
+		expect(r.output).toMatch(/\$\s?[\d,]+(\.\d+)?/);
+		expect(r.output).toMatch(/https:\/\/api\.equibles\.com\/\S*AAPL/);
 	});
 });
