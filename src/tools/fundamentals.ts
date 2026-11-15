@@ -1,5 +1,5 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { type Static, Type } from "@sinclair/typebox";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { type Static, Type } from "typebox";
 import { PeriodType, ReportPeriodFilterParams, TickerParam } from "../schemas.js";
 import { registerSimpleTool } from "../tool-helpers.js";
 

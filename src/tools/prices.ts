@@ -1,5 +1,5 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { Type } from "@sinclair/typebox";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
 import type { ArrayResponse, SnapshotResponse } from "../api.js";
 import { DateRangeParams, PriceIntervalParams, TickerOnlyParams, TickerParam } from "../schemas.js";
 import { registerArrayTool, registerSimpleTool } from "../tool-helpers.js";
