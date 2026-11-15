@@ -137,8 +137,8 @@ Skills are loaded automatically when running pi from this directory, or can be c
 ## Development
 
 ```bash
-npm run check       # Lint and format (Biome)
-npm run check:fix   # Auto-fix lint/format issues
+npm run check       # Lint (oxlint, type-aware) and check formatting (oxfmt)
+npm run check:fix   # Fix lint issues and format
 npm run typecheck   # TypeScript type check
 npm test            # Run unit tests
 npm run test:e2e    # Run e2e tests (requires API key)

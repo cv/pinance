@@ -72,6 +72,7 @@ export function registerSimpleTool<TParams extends TObject, TResponse>(
 			const { data, url } = await callApi<TResponse>(
 				config.endpoint,
 				// Pi types params with its own Static; it is the same JSON value as TypeBox's.
+				// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 				config.buildParams(params as Static<TParams>),
 				signal,
 			);
@@ -88,6 +89,8 @@ export function registerSimpleTool<TParams extends TObject, TResponse>(
 			return {
 				content: [{ type: "text", text: responseText }],
 				details,
+				// extracted is parsed JSON from the API, so the whole object is JSON.
+				// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 				structuredContent: { ...details, data: extracted } as JsonValue,
 			};
 		},
@@ -105,6 +108,6 @@ export function registerArrayTool<TParams extends TObject, TResponse>(
 ): void {
 	registerSimpleTool(pi, {
 		...config,
-		getCount: (data) => (data as unknown[]).length,
+		getCount: (data) => (Array.isArray(data) ? data.length : 0),
 	});
 }

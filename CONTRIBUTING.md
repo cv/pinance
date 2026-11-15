@@ -19,13 +19,12 @@ Thanks for your interest in contributing! This document outlines the process for
 
 ## Code Style
 
-This project uses [Biome](https://biomejs.dev/) for linting and formatting with strict settings:
+This project uses [oxlint](https://oxc.rs/docs/guide/usage/linter) for linting and [oxfmt](https://oxc.rs/docs/guide/usage/formatter) for formatting:
 
-- All lint rules enabled
-- Tabs for indentation
-- Double quotes
-- Semicolons required
-- Trailing commas
+- oxlint runs type-aware (`--type-aware`, through `oxlint-tsgolint`), with the correctness, suspicious, and perf categories as errors, plus rules such as `no-explicit-any`, `no-floating-promises`, `consistent-type-imports`, and `no-console` (see [`.oxlintrc.json`](.oxlintrc.json))
+- Tests may use unchecked type assertions and untyped `vi.fn()` mocks; production code needs an `oxlint-disable-next-line` comment with a reason
+- oxfmt formats `src` and JSON: tabs, double quotes, semicolons, trailing commas, 100 columns (see [`.oxfmtrc.json`](.oxfmtrc.json))
+- pit owns `.pi/functions`, so neither tool touches it
 
 A pre-commit hook runs `npm run check` automatically. To fix issues:
 
@@ -38,7 +37,7 @@ npm run check:fix
 1. Create a feature branch from `main`
 2. Make focused, atomic commits
 3. Ensure all checks pass:
-   - `npm run check` (Biome lint/format)
+   - `npm run check` (oxlint and oxfmt)
    - `npm run typecheck` (TypeScript)
    - `npm test` (Vitest)
 4. Open a PR with a clear description

@@ -1,12 +1,23 @@
 {
 	"name": "pinance",
 	"version": "0.1.1",
-	"description": "pi extension for financial data tools (crypto, stocks, SEC filings, etc.)",
-	"type": "module",
 	"private": true,
+	"description": "pi extension for financial data tools (crypto, stocks, SEC filings, etc.)",
+	"keywords": [
+		"crypto",
+		"finance",
+		"pi",
+		"pi-extension",
+		"sec-filings",
+		"stocks"
+	],
+	"license": "MIT",
+	"type": "module",
 	"scripts": {
-		"check": "biome check .",
-		"check:fix": "biome check --write .",
+		"check": "oxlint --type-aware && oxfmt --check",
+		"check:fix": "oxlint --type-aware --fix && oxfmt",
+		"lint": "oxlint --type-aware",
+		"format": "oxfmt",
 		"test": "vitest run --exclude src/e2e.test.ts",
 		"test:coverage": "vitest run --exclude src/e2e.test.ts --coverage",
 		"test:e2e": "vitest run src/e2e.test.ts",
@@ -15,29 +26,22 @@
 		"typecheck": "tsc --noEmit",
 		"prepare": "husky"
 	},
-	"pi": {
-		"extensions": [
-			"./src/index.ts"
-		]
-	},
-	"keywords": [
-		"pi",
-		"pi-extension",
-		"finance",
-		"stocks",
-		"crypto",
-		"sec-filings"
-	],
-	"license": "MIT",
 	"devDependencies": {
-		"@biomejs/biome": "^2.6.8",
 		"@earendil-works/pi-coding-agent": "^1.5.2",
 		"@types/node": "^26.6.6",
 		"@vitest/coverage-v8": "^5.1.0",
 		"dotenv": "^18.0.10",
 		"husky": "^9.1.7",
+		"oxfmt": "^0.78.0",
+		"oxlint": "^1.93.0",
+		"oxlint-tsgolint": "^7.0.2007",
 		"typebox": "^1.4.7",
 		"typescript": "^7.0.2",
 		"vitest": "^5.1.0"
+	},
+	"pi": {
+		"extensions": [
+			"./src/index.ts"
+		]
 	}
 }
