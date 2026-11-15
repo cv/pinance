@@ -7,12 +7,14 @@ description: Extracts content from SEC filings (10-K, 10-Q, 8-K) via Financial D
 
 ## Tools
 
-| Tool | Use |
-|------|-----|
-| `get_filings` | List filings (metadata, accession numbers) |
-| `get_10K_filing_items` | Extract sections from annual reports |
-| `get_10Q_filing_items` | Extract sections from quarterly reports |
-| `get_8K_filing_items` | Extract content from current reports |
+| Tool | pit function | Use |
+|------|--------------|-----|
+| `get_filings` | `fd.filings` | List filings (metadata, accession numbers) |
+| `get_10K_filing_items` | `fd.filingItems({ filing_type: "10-K" })` | Extract sections from annual reports |
+| `get_10Q_filing_items` | `fd.filingItems({ filing_type: "10-Q" })` | Extract sections from quarterly reports |
+| `get_8K_filing_items` | `fd.filingItems({ filing_type: "8-K" })` | Extract content from current reports |
+
+Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
 
 ## 10-K Items
 

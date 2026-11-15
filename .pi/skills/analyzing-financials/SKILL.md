@@ -7,16 +7,18 @@ description: Retrieves company financial statements, metrics, estimates, and seg
 
 ## Tools
 
-| Tool | Returns |
-|------|---------|
-| `get_income_statements` | Revenue, expenses, net income, EPS |
-| `get_balance_sheets` | Assets, liabilities, equity |
-| `get_cash_flow_statements` | Operating/investing/financing flows |
-| `get_all_financial_statements` | All three above (more efficient) |
-| `get_financial_metrics_snapshot` | Current P/E, market cap, dividend yield |
-| `get_financial_metrics` | Historical metrics over time |
-| `get_analyst_estimates` | EPS forecasts |
-| `get_segmented_revenues` | Revenue by segment/geography |
+| Tool | pit function | Returns |
+|------|--------------|---------|
+| `get_income_statements` | `fd.financialStatements({ statement: "income" })` | Revenue, expenses, net income, EPS |
+| `get_balance_sheets` | `fd.financialStatements({ statement: "balance" })` | Assets, liabilities, equity |
+| `get_cash_flow_statements` | `fd.financialStatements({ statement: "cash_flow" })` | Operating/investing/financing flows |
+| `get_all_financial_statements` | `fd.financialStatements()` | All three above (more efficient) |
+| `get_financial_metrics_snapshot` | `fd.metricsSnapshot` | Current P/E, market cap, dividend yield |
+| `get_financial_metrics` | `fd.metrics` | Historical metrics over time |
+| `get_analyst_estimates` | `fd.estimates` | EPS forecasts |
+| `get_segmented_revenues` | `fd.segmentedRevenues` | Revenue by segment/geography |
+
+Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
 
 ## Parameters
 

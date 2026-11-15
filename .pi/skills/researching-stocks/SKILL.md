@@ -42,6 +42,16 @@ get_income_statements(ticker: "MSFT", ...)
 Compare and analyze margins
 ```
 
+Under pit, fetch everything independent in one program and return only what the answer needs:
+```ts
+async ({ fd: { financialStatements } }) => {
+  const [aapl, msft] = await Promise.all(
+    ["AAPL", "MSFT"].map((ticker) => financialStatements({ ticker, period: "annual", statement: "income", limit: 3 })),
+  );
+  return { aapl: aapl.data, msft: msft.data, sources: [aapl.url, msft.url] };
+}
+```
+
 ## Step 3: Execute
 
 Call tools. Related skills:

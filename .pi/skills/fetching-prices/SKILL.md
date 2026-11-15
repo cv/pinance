@@ -7,13 +7,15 @@ description: Retrieves stock and cryptocurrency price data via Financial Dataset
 
 ## Tools
 
-| Tool | Returns |
-|------|---------|
-| `get_price_snapshot` | Latest stock price, volume, OHLC |
-| `get_prices` | Historical stock prices |
-| `get_crypto_price_snapshot` | Latest crypto price |
-| `get_crypto_prices` | Historical crypto prices |
-| `get_available_crypto_tickers` | List of crypto pairs |
+| Tool | pit function | Returns |
+|------|--------------|---------|
+| `get_price_snapshot` | `fd.priceSnapshot` | Latest stock price, volume, OHLC |
+| `get_prices` | `fd.prices` | Historical stock prices |
+| `get_crypto_price_snapshot` | `fd.cryptoPriceSnapshot` | Latest crypto price |
+| `get_crypto_prices` | `fd.cryptoPrices` | Historical crypto prices |
+| `get_available_crypto_tickers` | `fd.cryptoTickers` | List of crypto pairs |
+
+Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
 
 ## Parameters
 

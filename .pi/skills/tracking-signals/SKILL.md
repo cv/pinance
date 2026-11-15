@@ -7,10 +7,12 @@ description: Retrieves insider trading data and company news via Financial Datas
 
 ## Tools
 
-| Tool | Returns |
-|------|---------|
-| `get_insider_trades` | SEC Form 4 transactions (buys, sells, grants) |
-| `get_news` | Recent news articles |
+| Tool | pit function | Returns |
+|------|--------------|---------|
+| `get_insider_trades` | `fd.insiderTrades` | SEC Form 4 transactions (buys, sells, grants) |
+| `get_news` | `fd.news` | Recent news articles |
+
+Under [pit](https://github.com/cv/pit), call the `fd.*` saved functions in `.pi/functions/fd/` from one program, for example `({ fd: { metrics } }) => metrics({ ticker: "AAPL" })`. Each returns `{ data, url }` (lists also return `count`); cite `url`.
 
 ## Parameters
 
