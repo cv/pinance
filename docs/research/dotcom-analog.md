@@ -12,7 +12,7 @@ The overlay looks convincing, but most of the match comes from both lines rising
 - **Valuation is close to 1999.** The Shiller CAPE is **39.95**, against a peak of 44.2 in Dec 1999. The last time it was this high was Jan 1999 (40.6). The long-run median is 16.2.
 - **Momentum is far from 1999.** The S&P's trailing 5-year return is **10.6% a year**, against **24.3%** at the Jan 2000 peak. The trailing 3-year return is 18.3%, against 26.5% in Aug 1999.
 - **Rates are the closest echo.** The 10-year Treasury yield rose from 4.14% (Dec 2025) to **5.13%** (Oct 2026). In 1999 it rose from 4.72% to 6.28% in a year while the Fed hiked. Effective fed funds has also turned up, from 3.63% to 3.88% since August.
-- **There has been no blow-off.** In the last seven months of the bubble the Nasdaq rose 67% and the Nasdaq/S&P ratio jumped 47%. Nothing like that has happened yet. The Nasdaq peaked in May 2026 and is 6.8% below that peak, while the S&P is 1.2% below its September high.
+- **There has been no blow-off.** In the last seven months of the bubble the Nasdaq rose 67% and the Nasdaq/S&P ratio jumped 47%. Nothing like that has happened yet. On monthly closes the Nasdaq Composite's high was May 2026 and the S&P's was September 2026. On daily closes both peaked on 6 Oct 2026 (see section 6), so tech did not top first.
 
 ## 1. The overlay
 
@@ -185,6 +185,34 @@ Series: 🟦 SPY 1999–2002, 🟥 SPY today vs its 6 Oct 2026 top (-5%). 90 of 
 - The run-ups into the two tops are almost the same size: about +17% over one year and about +38% over two.
 - The first weeks after each top are also similar.
 - The 2000 top was only confirmed in hindsight, after more than six months that included a near-retest. 6 Oct is a top only if SPY does not make a new high, so this alignment assumes the top is already in.
+
+## 7. Review of the "2000 vs 2026 Market Overlay" page
+
+*Reviewing [this attachment](https://github.com/user-attachments/files/34935078/2000.vs.2026.Market.Overlay.html), posted in [this comment](https://github.com/cv/pinance/issues/61#issuecomment-6927194130).*
+
+**The data is accurate.** The page's embedded daily series match Yahoo's ^GSPC and ^NDX closes, for example 1,527.46 on 24 Mar 2000, 7,818.93 on 6 Oct 2026, and 4,704.73 for the Nasdaq-100 on 27 Mar 2000. Only the last point differs, because it is intraday. Recomputing from the page's own data reproduces its table: −6.2% and −5.2% for the S&P 29 sessions after each peak, 11.3% vs 8.1% above the 200-day average, 63-day volatility of about 24% vs 11%, and the Nasdaq-100 at −25.1% vs −12.8%.
+
+**Small fixes:**
+
+- 29 sessions after 24 Mar 2000 is **5 May 2000**, not 4 May. On 4 May the S&P was −7.7%.
+- For the Nasdaq-100, 29 sessions after its 27 Mar 2000 peak is 8 May.
+
+**The best fit holds up, with a caveat.** I compared the last 1,008 sessions with every 4-year window since 1950, sampled weekly. That is 3,464 windows. The window ending in early May 2000 (correlation 0.985) is the best of all of them, and only 6% of windows reach 0.95. So the shape match is unusual, not something any rising market produces. The caveat is the day-to-day moves: daily returns in the two windows correlate at about 0.03. What matches is the overall arc (a dip, a long rally, a rollover), not the daily path.
+
+**What followed the other close matches:**
+
+| Window ending | Shape correlation | S&P over the next 12 months | Worst point in those 12 months |
+|---|---:|---:|---:|
+| 4 May 2000 | 0.985 | −10.1% | −21.7% |
+| 7 Jul 1999 | 0.976 | +3.6% | −10.6% |
+| 11 Aug 2015 | 0.971 | +4.4% | −12.2% |
+| 28 Apr 1966 | 0.955 | +3.2% | −19.7% |
+| 21 Jan 1957 | 0.951 | −7.0% | −12.2% |
+| 8 Jan 2020 | 0.947 | +16.9% | −31.2% |
+
+The arc it matches is a long rally that rolls over. In this set, that has been followed by a pullback of at least 10% within a year, but only 2000 became a long bear market. The 1987 match (correlation 0.93) ended on the crash day itself, so it is left out.
+
+**What the page leaves out:** its own table makes the case that the S&P has the 2000 shape but not its intensity. The 3-month volatility is less than half of 2000's, the distance above the 200-day average is lower, and the gain from the cycle low is about half. Those measure how stretched a market is.
 
 ## Method and sources
 
