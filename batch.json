@@ -1,1 +1,1 @@
-{"format":1,"seq":399,"writes":[{"type":"document.change","id":2,"content":{"version":3,"kind":"delta","ops":[["a",["generation","message","content",1,"arguments","code"],"trading days,"]]}}]}
+{"format":1,"seq":400,"writes":[{"type":"document.change","id":2,"content":{"version":3,"kind":"delta","ops":[["a",["generation","message","content",1,"arguments","code"]," peak=100\n  const step = 5; const ksA: number[] = []; for (let k = -250; k <= after; k += step) ksA.push(k); if ("]]}}]}
