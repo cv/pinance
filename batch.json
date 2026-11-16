@@ -1,1 +1,1 @@
-{"format":1,"seq":713,"writes":[{"type":"document.change","id":2,"content":{"version":3,"kind":"delta","ops":[["a",["generation","message","content",0,"thinking"],"I'm puzzled why the /tmp/outlook.json edit didn't error but seemingly didn't apply—wondering if issuing both edit calls in the same block caused them"]]}}]}
+{"format":1,"seq":714,"writes":[{"type":"document.change","id":2,"content":{"version":3,"kind":"delta","ops":[["a",["generation","message","content",0,"thinking"]," to run in parallel r"]]}}]}
