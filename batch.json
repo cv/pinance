@@ -1,1 +1,1 @@
-{"format":1,"seq":403,"writes":[{"type":"document.change","id":2,"content":{"version":3,"kind":"delta","ops":[["a",["generation","message","content",1,"arguments","code"]," the 24 Mar 2000 top\", values: ksA."]]}}]}
+{"format":1,"seq":404,"writes":[{"type":"document.change","id":2,"content":{"version":3,"kind":"delta","ops":[["a",["generation","message","content",1,"arguments","code"],"map((k) => rel(old, pi0, P0, k)) }, { name"]]}}]}
