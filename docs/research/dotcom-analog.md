@@ -214,6 +214,65 @@ The arc it matches is a long rally that rolls over. In this set, that has been f
 
 **What the page leaves out:** its own table makes the case that the S&P has the 2000 shape but not its intensity. The 3-month volatility is less than half of 2000's, the distance above the 200-day average is lower, and the gain from the cycle low is about half. Those measure how stretched a market is.
 
+## 8. What the correlations imply for the next few months
+
+*Added after [this comment](https://github.com/cv/pinance/issues/61#issuecomment-6927419254). Starting point: close of 16 Nov 2026, S&P 500 at 7,422 and Nasdaq Composite at 24,562. Analogs are the 10 closest 4-year (1,008-session) shape matches, taken from separate episodes at least 250 sessions apart and ending before Nov 2022. Each index was searched against its own history: the S&P since 1950, the Nasdaq Composite since 1971.*
+
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#3b82f6, #ef4444, #22c55e, #f97316, #a855f7"}}}}%%
+xychart-beta
+    title "S&P 500 next 6 months: 10 closest 4-year shape analogs since 1950, rebased to today"
+    x-axis ["11-16", "​​", "​​​", "​​​​", "​​​​​", "12-08", "​​​​​​​", "​​​​​​​​", "​​​​​​​​​", "​​​​​​​​​​", "12-30", "​​​​​​​​​​​​", "​​​​​​​​​​​​​", "​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​", "01-22", "​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​", "02-12", "​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​", "03-08", "​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "03-30", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "04-20", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "05-11", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​"]
+    y-axis "S&P 500"
+    line [7422, 7422, 7406, 7364, 7258, 7229, 7319, 7313, 7262, 7362, 7403, 7270, 7372, 7424, 7366, 7301, 7352, 7338, 7397, 7403, 7356, 7228, 7118, 7280, 7292, 7342, 7374, 7397, 7372, 7330, 7272, 7316, 7233, 7213, 7122, 7238, 7281, 7098, 7055, 7129, 7220, 7223, 7185]
+    line [7422, 7364, 7393, 7143, 7081, 6973, 7093, 7133, 7068, 7052, 7108, 7107, 7097, 7111, 7193, 7141, 7244, 7280, 7164, 6962, 7027, 7063, 6930, 6859, 6824, 6807, 6674, 6788, 6828, 6950, 6933, 7037, 7030, 7067, 7015, 6942, 7037, 6772, 6822, 6832, 6995, 7034, 6848]
+    line [7422, 7507, 7472, 7529, 7386, 7541, 7500, 7639, 7626, 7680, 7669, 7746, 7654, 7657, 7675, 7750, 7808, 7802, 7706, 7467, 7505, 7523, 7495, 7591, 7583, 7651, 7682, 7756, 7718, 7677, 7756, 7706, 7680, 7613, 7655, 7504, 7524, 7517, 7356, 7300, 7344, 7437, 7480]
+    line [7422, 7436, 7482, 7623, 7375, 7274, 7480, 7728, 7696, 7737, 7711, 7788, 7663, 7595, 7615, 7770, 7876, 7865, 7794, 7648, 7534, 7648, 7808, 7750, 7792, 7895, 7942, 7950, 8008, 7911, 7803, 7718, 7642, 7577, 7679, 7511, 7419, 7185, 7238, 7312, 7362, 7264, 7483]
+    line [7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819, 7819]
+```
+
+Series: 🟦 Analog median, 🟥 Analog 25th percentile, 🟩 Analog 75th percentile, 🟧 Best match: S&P after 4 May 2000, 🟪 6 Oct 2026 closing high (7,819). Source: https://finance.yahoo.com/quote/%5EGSPC/history
+
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#3b82f6, #ef4444, #22c55e, #f97316, #a855f7"}}}}%%
+xychart-beta
+    title "Nasdaq Composite next 6 months: 10 closest 4-year shape analogs since 1975, rebased to today"
+    x-axis ["11-16", "​​", "​​​", "​​​​", "​​​​​", "12-08", "​​​​​​​", "​​​​​​​​", "​​​​​​​​​", "​​​​​​​​​​", "12-30", "​​​​​​​​​​​​", "​​​​​​​​​​​​​", "​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​", "01-22", "​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​", "02-12", "​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​", "03-08", "​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "03-30", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "04-20", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "05-11", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​", "​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​"]
+    y-axis "Nasdaq Composite"
+    line [24562, 24686, 24847, 25206, 24968, 25341, 25495, 25465, 25462, 25775, 25699, 26021, 25882, 25948, 26033, 25507, 26017, 25487, 25345, 26002, 25567, 25885, 26038, 26509, 26324, 26543, 26554, 25850, 26468, 26641, 26319, 25911, 25690, 25580, 25688, 25040, 25638, 25741, 26059, 26208, 26466, 26709, 26650]
+    line [24562, 24400, 24529, 24751, 24662, 24687, 24682, 24908, 24731, 24828, 25039, 24626, 24711, 25014, 25246, 25123, 24595, 24065, 23089, 23066, 23413, 23613, 23314, 23647, 24007, 24110, 24156, 24339, 24613, 24765, 24615, 24202, 24007, 23480, 23716, 23188, 23724, 23806, 24426, 24744, 24125, 23869, 23586]
+    line [24562, 24818, 25180, 25487, 25594, 25851, 25923, 25993, 26375, 26421, 26771, 27336, 27634, 27753, 26871, 27580, 26451, 26343, 27477, 26936, 27384, 27094, 27712, 27536, 28104, 28494, 27860, 27985, 27787, 27522, 27294, 27491, 27666, 28133, 28221, 28664, 27900, 28135, 28420, 28343, 28231, 28278, 28347]
+    line [24562, 25365, 25588, 26389, 27167, 27725, 27576, 27985, 28726, 29575, 29851, 29842, 30546, 29302, 30449, 31597, 32481, 32666, 34575, 35524, 33919, 35985, 35297, 36906, 36699, 35361, 34406, 34471, 34020, 34851, 34193, 34158, 35649, 35479, 36186, 35694, 36273, 36950, 38139, 38337, 38488, 37006, 37081]
+    line [27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600, 27600]
+```
+
+Series: 🟦 Analog median, 🟥 Analog 25th percentile, 🟩 Analog 75th percentile, 🟧 Best match: Nasdaq after 19 Oct 1998, 🟪 6 Oct 2026 closing high (27,600). Source: https://finance.yahoo.com/quote/%5EIXIC/history
+
+| Next 6 months | S&P: shape analogs | S&P: any 4–7% pullback | S&P: all periods | Nasdaq: shape analogs | Nasdaq: any 4–7% pullback | Nasdaq: all periods |
+|---|---:|---:|---:|---:|---:|---:|
+| Median 3-month return | −2.6% | +4.8% | +2.7% | +5.4% | +3.6% | +3.6% |
+| Median 6-month return | −3.1% | +6.5% | +5.2% | +8.5% | +10.5% | +7.0% |
+| Share higher after 6 months | 40% | 75% | 71% | 60% | 76% | 70% |
+| Median worst drop within 6 months | −7.4% | −2.9% | | −4.1% | −7.3% | |
+| Sample | 10 | 73 | 19,215 days | 10 | 41 | 13,937 days |
+
+"Any 4–7% pullback" means every time since 1950 (S&P) or 1971 (Nasdaq) the index was 4–7% below a high set 15–45 sessions earlier, as now. Episodes are at least 60 sessions apart.
+
+**S&P shape analogs:** 2000-05-04, 1998-02-27, 2015-08-11, 1999-05-07, 1966-04-28, 2019-12-03, 1957-01-23, 2007-05-24, 1994-01-10, 1987-10-16. 3 of 10 fell more than 17% within six months (1966, 2019 into the Covid crash, 1987).
+
+**Nasdaq shape analogs:** 1998-10-19 (+51% in six months), 2015-12-14, 1979-08-06, 2020-07-08, 1981-11-13, 1980-08-01, 2000-05-19, 2013-07-12, 1994-07-13, 1978-08-07.
+
+**How to read it:**
+
+1. **Even replaying 2000 exactly is mild over the next six months.** After 4 May 2000 the S&P was +3.0% at three months and +0.8% at six, with a worst point of −5.7%. The serious losses came 6–30 months later.
+2. **The two indices point to different years.** The S&P's best match is just after the 2000 top; the Nasdaq's is October 1998, just before the final blow-off. They cannot both repeat, because in 1998–2000 the two moved together. That disagreement is a reason to treat any single analog with caution.
+3. **The S&P analogs lean flat to lower over six months, while ordinary pullbacks usually recover.** The truth is likely between the two, with a wider range than usual: roughly 6,850–7,500 for the S&P's middle half (25th to 75th percentile) at six months, and roughly 23,600–28,300 for the Nasdaq.
+4. **Downside levels to watch:**
+   - **S&P −10% from its high, about 7,040.** In 2000 the first pullback bottomed at −11%. Ordinary pullbacks rarely go much past it.
+   - **S&P −20%, about 6,255.** That would be a bear market, which in 2000 took almost a year to arrive.
+
+This is a historical comparison with very small samples, not a forecast or investment advice.
+
 ## Method and sources
 
 - S&P 500 (^GSPC) and Nasdaq Composite (^IXIC) monthly closes from Yahoo Finance. Financial Datasets and Equibles price history only goes back to 2020–2023.
