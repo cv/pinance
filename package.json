@@ -29,7 +29,7 @@
 	"devDependencies": {
 		"@earendil-works/pi-coding-agent": "^1.5.2",
 		"@types/node": "^26.6.6",
-		"@vitest/coverage-v8": "^5.1.0",
+		"@vitest/coverage-v8": "^5.1.1",
 		"dotenv": "^18.0.10",
 		"husky": "^9.1.7",
 		"oxfmt": "^0.78.0",
